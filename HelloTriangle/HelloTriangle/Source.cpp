@@ -117,15 +117,15 @@ int main()
 
 		// Chamada de desenho - drawcall
 		// Poligono Preenchido - GL_TRIANGLES
-		glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f);
+		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
 		glUseProgram(shaderID);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		// Chamada de desenho - drawcall
 		// CONTORNO - GL_LINE_LOOP
-		glUniform4f(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f);
+		glDrawArrays(GL_LINE_LOOP, 0, 3);
 		glBindVertexArray(0);
 
 		// Troca os buffers da tela
