@@ -35,6 +35,7 @@ const GLchar* vertexShaderSource = "#version 450\n"
 "layout (location = 0) in vec3 position;\n"
 "void main()\n"
 "{\n"
+//...pode ter mais linhas de código aqui!
 "gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
 "}\0";
 
@@ -99,6 +100,7 @@ int main()
 	// que não está nos buffers
 	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor");
 	assert(colorLoc > -1);
+	
 	glUseProgram(shaderID);
 	
 
@@ -117,14 +119,14 @@ int main()
 
 		// Chamada de desenho - drawcall
 		// Poligono Preenchido - GL_TRIANGLES
-		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
-		glUseProgram(shaderID);
+		glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f);
+
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		// Chamada de desenho - drawcall
 		// CONTORNO - GL_LINE_LOOP
-		glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f);
+		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f);
 		glDrawArrays(GL_LINE_LOOP, 0, 3);
 		glBindVertexArray(0);
 
@@ -210,6 +212,7 @@ int setupGeometry()
 		-0.5, -0.5, 0.0,
 		 0.5, -0.5, 0.0,
 		 0.0, 0.5, 0.0,
+		 //outro triangulo vai aqui
 	};
 
 	GLuint VBO, VAO;
