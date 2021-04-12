@@ -1,0 +1,8 @@
+﻿  Sprite.cpp
+C:\Users\fello\Documents\Cache Aulas 2021-1\Code\PG2021-1\Framework-PG\Framework-PG\Shader.h(10,10): fatal error C1083: Não é possível abrir arquivo incluir: 'glad/glad.h': No such file or directory
+  SceneManager.cpp
+C:\Users\fello\Documents\Cache Aulas 2021-1\Code\PG2021-1\Framework-PG\Framework-PG\Shader.h(10,10): fatal error C1083: Não é possível abrir arquivo incluir: 'glad/glad.h': No such file or directory
+  Source.cpp
+C:\Users\fello\Documents\Cache Aulas 2021-1\Code\PG2021-1\Framework-PG\Framework-PG\Shader.h(10,10): fatal error C1083: Não é possível abrir arquivo incluir: 'glad/glad.h': No such file or directory
+  stb_image.cpp
+  Gerando Código...
