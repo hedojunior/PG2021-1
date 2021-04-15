@@ -87,6 +87,11 @@ int main()
 	// Para enviar o identificador de modo de desenho
 	GLint rasterCodeLoc = glGetUniformLocation(shader.ID, "rasterCode");
 
+	bool drawFirstQuarter = false;
+	bool drawSecondQuarter = false;
+	bool drawThirdQuarter = false;
+	bool drawFourthQuarter = false;
+
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
 	{
@@ -106,30 +111,11 @@ int main()
 		// Create transformations -- a first "camera" -- Orthographic Camera
 		glm::mat4 ortho = glm::mat4(1);;
 
-		//Matriz ortográfica - Câmera 2D
-		//Resposta exercicio 3: ao alterar o y máximo pra 0 e minimo pra 600, o desenho tem como origem o topo esquerdo
-		// da tela, e não o inferior esquerdo, como um plano cartesiano.
-		ortho = glm::ortho(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f);
+		ortho = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 
-		//corrigindo o aspecto
-		/*float ratio;
-		float xMin = -1.0, xMax = 1.0, yMin = -1.0, yMax = 1.0;
-		float zNear = -1.0, zFar = 1.0;
-		if (width >= height)
-		{
-			ratio = width / (float)height;
-			ortho =  glm::ortho(xMin*ratio, xMax*ratio, yMin, yMax,zNear,zFar);
-		}
-		else
-		{
-			ratio = height / (float)width;
-			ortho =  glm::ortho(xMin, xMax, yMin*ratio, yMax*ratio, zNear, zFar);
-		}*/
-
-		// Obtem seus identificadores de localização no shader
 		GLint modelLoc = glGetUniformLocation(shader.ID, "model");
 		GLint projLoc = glGetUniformLocation(shader.ID, "projection");
-		// Passa suas informações efetivamente para o shader
+		
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(ortho));
 
@@ -137,22 +123,60 @@ int main()
 		glLineWidth(5);
 		glPointSize(10);
 
-		// Chamada de desenho - drawcall
-		// Poligono Preenchido - GL_TRIANGLES
-		glUniform1i(rasterCodeLoc, 0); //zero é preenchido
+		glUniform1i(rasterCodeLoc, 0); 
 		glUseProgram(shader.ID);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		// Chamada de desenho - drawcall
-		// Contorno do polígono - GL_LINE_LOOP
-		glUniform1i(rasterCodeLoc, 1); //1 é contornado
+		glUniform1i(rasterCodeLoc, 1);
 		glDrawArrays(GL_LINE_LOOP, 0, 6);
 		glBindVertexArray(0);
 
-		// Troca os buffers da tela
+		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 0.0f));
+
+		modelLoc = glGetUniformLocation(shader.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		glUniform1i(rasterCodeLoc, 0);
+		glUseProgram(shader.ID);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glUniform1i(rasterCodeLoc, 1);
+		glDrawArrays(GL_LINE_LOOP, 0, 6);
+		glBindVertexArray(0);
+
+		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+
+		modelLoc = glGetUniformLocation(shader.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		glUniform1i(rasterCodeLoc, 0);
+		glUseProgram(shader.ID);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glUniform1i(rasterCodeLoc, 1);
+		glDrawArrays(GL_LINE_LOOP, 0, 6);
+		glBindVertexArray(0);
+
+		model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f));
+
+		modelLoc = glGetUniformLocation(shader.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		glUniform1i(rasterCodeLoc, 0);
+		glUseProgram(shader.ID);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glUniform1i(rasterCodeLoc, 1);
+		glDrawArrays(GL_LINE_LOOP, 0, 6);
+		glBindVertexArray(0);
+
 		glfwSwapBuffers(window);
 	}
+
 	// Pede pra OpenGL desalocar os buffers
 	glDeleteVertexArrays(1, &VAO);
 	// Finaliza a execução da GLFW, limpando os recursos alocados por ela
