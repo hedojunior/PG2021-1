@@ -106,11 +106,17 @@ int main()
 		// Create transformations -- a first "camera" -- Orthographic Camera
 		glm::mat4 ortho = glm::mat4(1);;
 
+		model = glm::scale(model, glm::vec3(100.0f, 100.0f, 0.0f));
+
+		model = glm::translate(model, glm::vec3(1.0f, 1.0f, 0.0f));
+
 		//Matriz de modelo - Transformações no objeto
 		model = glm::rotate(model, (GLfloat)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
 
 		//Matriz ortográfica - Câmera 2D
-		ortho = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, -1.0f, 1.0f);
+		//Resposta exercicio 3: ao alterar o y máximo pra 0 e minimo pra 600, o desenho tem como origem o topo esquerdo
+		// da tela, e não o inferior esquerdo, como um plano cartesiano.
+		ortho = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
 
 		//corrigindo o aspecto
 		/*float ratio;
