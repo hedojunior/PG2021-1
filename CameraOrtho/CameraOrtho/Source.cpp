@@ -26,9 +26,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 // Protótipos das funções
 int setupGeometry();
+void moveLeft();
+void moveUp();
+void moveRight();
+void moveDown();
 
 // Dimensões da janela (pode ser alterado em tempo de execução)
 const GLuint WIDTH = 800, HEIGHT = 600;
+GLfloat currentYTranslationScale = 0.0f;
+GLfloat currentXTranslationScale = 0.0f;
+const GLfloat MOVEMENT_FACTOR = 0.10f;
 
 // Função MAIN
 int main()
@@ -106,56 +113,20 @@ int main()
 		// Create transformations -- a first "camera" -- Orthographic Camera
 		glm::mat4 ortho = glm::mat4(1);
 
-		ortho = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+		ortho = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, -1.0f, 1.0f);
 
 		GLint modelLoc = glGetUniformLocation(shader.ID, "model");
 		GLint projLoc = glGetUniformLocation(shader.ID, "projection");
 		
+		model = glm::translate(model, glm::vec3(currentXTranslationScale, currentYTranslationScale, 0.0f));
+
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(ortho));
-
-		glLineWidth(5);
-		glPointSize(10);
 
 		glUniform1i(rasterCodeLoc, 0); 
 		glUseProgram(shader.ID);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		glUniform1i(rasterCodeLoc, 1);
-		glDrawArrays(GL_LINE_LOOP, 0, 6);
-		glBindVertexArray(0);
-
-		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
-		model = glm::translate(model, glm::vec3(-1.5f, 0.5f, 0.0f));
-		
-		modelLoc = glGetUniformLocation(shader.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-		glUniform1i(rasterCodeLoc, 0);
-		glUseProgram(shader.ID);
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		glUniform1i(rasterCodeLoc, 1);
-		glDrawArrays(GL_LINE_LOOP, 0, 6);
-		glBindVertexArray(0);
-
-		model = glm::mat4(1);
-		model = glm::rotate(model, (GLfloat)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::translate(model, glm::vec3(-0.25f, -1.25f, 0.0f));
-		
-		modelLoc = glGetUniformLocation(shader.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-		glUniform1i(rasterCodeLoc, 0);
-		glUseProgram(shader.ID);
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		glUniform1i(rasterCodeLoc, 1);
-		glDrawArrays(GL_LINE_LOOP, 0, 6);
-		glBindVertexArray(0);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);
 	}
@@ -174,6 +145,42 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
+
+	if ((key == GLFW_KEY_A || key == GLFW_KEY_LEFT) && action == GLFW_PRESS)
+		moveLeft();
+	
+	if ((key == GLFW_KEY_W || key == GLFW_KEY_UP) && action == GLFW_PRESS)
+		moveUp();
+
+	if ((key == GLFW_KEY_D || key == GLFW_KEY_RIGHT) && action == GLFW_PRESS)
+		moveRight();
+
+	if ((key == GLFW_KEY_S || key == GLFW_KEY_DOWN) && action == GLFW_PRESS)
+		moveDown();
+}
+
+void moveUp() {
+	if (currentYTranslationScale <= 1.4f) {
+		currentYTranslationScale += MOVEMENT_FACTOR;
+	}
+}
+
+void moveLeft() {
+	if (currentXTranslationScale >= -1.4f) {
+		currentXTranslationScale -= MOVEMENT_FACTOR;
+	}
+}
+
+void moveDown() {
+	if (currentYTranslationScale >= -1.4f) {
+		currentYTranslationScale -= MOVEMENT_FACTOR;
+	}
+}
+
+void moveRight() {
+	if (currentXTranslationScale <= 1.4f) {
+		currentXTranslationScale += MOVEMENT_FACTOR;
+	}
 }
 
 // Esta função está bastante harcoded - objetivo é criar os buffers que armazenam a 
@@ -188,14 +195,9 @@ int setupGeometry()
 	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 	GLfloat vertices[] = {
-		0.5f, 0.7f, 0.0f, 1.0, 0.0, 0.0, //Superior esquerdo
-		0.3f, 0.5f, 0.0f, 0.0, 1.0, 0.0, //Inferior esquerdo
-	    0.7f, 0.5f, 0.0f, 0.0, 0.0, 1.0, //Superior esquerdo
-	   
-	   
-		0.5f, 0.3f, 0.0f, 1.0, 1.0, 0.0,
-	    0.3f, 0.5f, 0.0, 1.0, 0.0, 1.0,  //Inferior esquerdo
-	    0.7f, 0.5f, 0.0f, 0.0, 1.0, 1.0
+		-0.5f, -0.5f, 0.0f, 1.0, 0.0, 0.0,
+		0.0f, 0.5f, 0.0f, 0.0, 1.0, 0.0,
+	    0.5f, -0.5f, 0.0f, 0.0, 0.0, 1.0
 	};
 
 	GLuint VBO, VAO;
@@ -226,9 +228,6 @@ int setupGeometry()
 	//Atributo cor
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), ((GLvoid*)(3 * sizeof(GLfloat))));
 	glEnableVertexAttribArray(1);
-
-
-	
 
 	// Observe que isso é permitido, a chamada para glVertexAttribPointer registrou o VBO como o objeto de buffer de vértice 
 	// atualmente vinculado - para que depois possamos desvincular com segurança
