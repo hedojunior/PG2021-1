@@ -87,11 +87,6 @@ int main()
 	// Para enviar o identificador de modo de desenho
 	GLint rasterCodeLoc = glGetUniformLocation(shader.ID, "rasterCode");
 
-	bool drawFirstQuarter = false;
-	bool drawSecondQuarter = false;
-	bool drawThirdQuarter = false;
-	bool drawFourthQuarter = false;
-
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
 	{
@@ -109,7 +104,7 @@ int main()
 		glm::mat4 model = glm::mat4(1);
 
 		// Create transformations -- a first "camera" -- Orthographic Camera
-		glm::mat4 ortho = glm::mat4(1);;
+		glm::mat4 ortho = glm::mat4(1);
 
 		ortho = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 
@@ -118,7 +113,6 @@ int main()
 		
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(ortho));
-
 
 		glLineWidth(5);
 		glPointSize(10);
@@ -132,8 +126,9 @@ int main()
 		glDrawArrays(GL_LINE_LOOP, 0, 6);
 		glBindVertexArray(0);
 
-		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 0.0f));
-
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
+		model = glm::translate(model, glm::vec3(-1.5f, 0.5f, 0.0f));
+		
 		modelLoc = glGetUniformLocation(shader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
@@ -146,22 +141,10 @@ int main()
 		glDrawArrays(GL_LINE_LOOP, 0, 6);
 		glBindVertexArray(0);
 
-		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-
-		modelLoc = glGetUniformLocation(shader.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-		glUniform1i(rasterCodeLoc, 0);
-		glUseProgram(shader.ID);
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		glUniform1i(rasterCodeLoc, 1);
-		glDrawArrays(GL_LINE_LOOP, 0, 6);
-		glBindVertexArray(0);
-
-		model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f));
-
+		model = glm::mat4(1);
+		model = glm::rotate(model, (GLfloat)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::translate(model, glm::vec3(-0.25f, -1.25f, 0.0f));
+		
 		modelLoc = glGetUniformLocation(shader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
