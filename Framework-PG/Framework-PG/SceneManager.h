@@ -35,6 +35,10 @@ public:
 	void calcWaitingTime(int fps, int elapsedTime);
 	void render();
 
+	//Métodos de animação
+	void moveRight();
+	void moveLeft();
+
 	//Métodos para configuração e carregamento dos elementos da cena
 	void initializeGraphics();
 	void addShader(string vFilename, string fFilename);

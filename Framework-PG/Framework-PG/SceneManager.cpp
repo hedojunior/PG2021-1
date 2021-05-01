@@ -11,9 +11,11 @@ static int const SCOTT_FRAME_COUNT = 8;
 static int const SCOTT_ANIM_COUNT = 2;
 static int const SCOTT_MOVE_LEFT = 0;
 static int const SCOTT_MOVE_RIGHT = 1;
-static float const LEFT_BOUNDARY = 30.0f;
-static float const RIGHT_BOUNDARY = 570.0f;
+static int const FPS = 14;
+static float const LEFT_BOUNDARY = 50.0f;
+static float const RIGHT_BOUNDARY = 750.0f;
 static float const FLOOR_LEVEL = 150.0f;
+static float const MOVEMENT_FACTOR = 25.0f;
 
 SceneManager::SceneManager()
 {
@@ -104,8 +106,19 @@ void SceneManager::update()
 	if (keys[GLFW_KEY_ESCAPE])
 		glfwSetWindowShouldClose(window, GL_TRUE);
 
-
-	//AQUI aplicaremos as transformações nos sprites
+	if (keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT]) 
+	{
+		moveRight();
+	}
+	else if (keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT])
+	{
+		moveLeft();
+	}
+	else
+	{
+		objects[1]->stopAnimating();
+	}
+		
 }
 
 void SceneManager::render()
@@ -128,8 +141,28 @@ void SceneManager::render()
 		objects[i]->update();
 		objects[i]->draw();
 	}
-	
+}
 
+void SceneManager::moveRight()
+{
+	objects[1]->setAnimationIndex(SCOTT_MOVE_RIGHT);
+
+	if (objects[1]->canMoveRight(RIGHT_BOUNDARY))
+	{
+		objects[1]->beginAnimating();
+		objects[1]->incrementXAxisPosition(MOVEMENT_FACTOR);
+	}
+}
+
+void SceneManager::moveLeft()
+{
+	objects[1]->setAnimationIndex(SCOTT_MOVE_LEFT);
+
+	if (objects[1]->canMoveLeft(LEFT_BOUNDARY))
+	{
+		objects[1]->beginAnimating();
+		objects[1]->incrementXAxisPosition(-MOVEMENT_FACTOR);
+	}
 }
 
 void SceneManager::calcWaitingTime(int fps, int elapsedTime)
@@ -157,7 +190,7 @@ void SceneManager::run()
 		glfwSwapBuffers(window);
 		timer->finish();
 
-		calcWaitingTime(16, timer->getEllapsedTimeMs());
+		calcWaitingTime(FPS, timer->getEllapsedTimeMs());
 
 		if (waitingTime)
 		{
