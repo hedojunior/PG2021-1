@@ -2,6 +2,7 @@
 
 #include "Shader.h"
 #include "Sprite.h" 
+#include "Timer.h"
 
 // GLM
 #include <glm/glm.hpp>
@@ -31,6 +32,7 @@ public:
 
 	//Métodos chamados no run (ciclo)
 	void update();
+	void calcWaitingTime(int fps, int elapsedTime);
 	void render();
 
 	//Métodos para configuração e carregamento dos elementos da cena
@@ -47,6 +49,11 @@ private:
 
 	//Programa de shader (por enquanto, assumimos apenas 1 instância)
 	Shader *shader;
+
+	//Timer para controlar FPS
+	Timer *timer;
+
+	double waitingTime;
 
 	//Câmera 2D - Matriz de projeção (ortográfica) com os limites em x,y
 	glm::vec4 ortho2D; //xmin, xmax, ymin, ymax

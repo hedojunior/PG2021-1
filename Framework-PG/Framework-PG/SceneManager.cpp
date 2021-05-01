@@ -1,9 +1,16 @@
 #include "SceneManager.h"
+#include <Windows.h>
 
 //static controllers for mouse and keyboard
 static bool keys[1024];
 static bool resized;
 static GLuint width, height;
+
+//Propriedades constantez
+static int const SCOTT_FRAME_COUNT = 8;
+static int const SCOTT_ANIM_COUNT = 2;
+static int const SCOTT_MOVE_LEFT = 0;
+static int const SCOTT_MOVE_RIGHT = 1;
 
 SceneManager::SceneManager()
 {
@@ -17,6 +24,8 @@ void SceneManager::initialize(GLuint w, GLuint h)
 {
 	width = w;
 	height = h;
+	timer = new Timer;
+	waitingTime = 0;
 	
 	// GLFW - GLEW - OPENGL general setup -- TODO: config file
 	initializeGraphics();
@@ -94,9 +103,6 @@ void SceneManager::update()
 
 
 	//AQUI aplicaremos as transformações nos sprites
-	
-	//altera o angulo do segundo objeto
-	objects[1]->setAngle((float)glfwGetTime());
 }
 
 void SceneManager::render()
@@ -123,12 +129,18 @@ void SceneManager::render()
 
 }
 
+void SceneManager::calcWaitingTime(int fps, int elapsedTime)
+{
+	waitingTime = 1000 / fps - elapsedTime;
+}
+
 void SceneManager::run()
 {
 	//GAME LOOP
 	while (!glfwWindowShouldClose(window))
 	{
-		
+		timer->start();
+
 		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
 
@@ -140,6 +152,14 @@ void SceneManager::run()
 		
 		// Swap the screen buffers
 		glfwSwapBuffers(window);
+		timer->finish();
+
+		calcWaitingTime(16, timer->getEllapsedTimeMs());
+
+		if (waitingTime)
+		{
+			Sleep(waitingTime);
+		}
 	}
 }
 
@@ -157,32 +177,18 @@ void SceneManager::setupScene()
 	//Mínimo: posicao e escala e ponteiro para o shader
 	Sprite* obj = new Sprite;
 	obj->setPosition(glm::vec3(400.0f, 300.0f, 0.0));
-	obj->setDimension(glm::vec3(302.0f, 402.0f, 1.0f)); //note que depois podemos reescalar conforme tamanho da sprite
+	obj->setDimension(glm::vec3(108.0f, 140.0f, 1.0f)); //note que depois podemos reescalar conforme tamanho da sprite
 	obj->setShader(shader);
 	objects.push_back(obj); //adiciona o primeiro obj
 
-	//Adicionando mais um
-	obj = new Sprite;
-	obj->setPosition(glm::vec3(700.0f, 300.0f, 0.0));
-	obj->setDimension(glm::vec3(100.0f, 200.0f, 1.0f));
-	obj->setShader(shader);
-	objects.push_back(obj); //adiciona o segundo obj
-
-	//Adicionando mais um
-	obj = new Sprite;
-	obj->setPosition(glm::vec3(0.0f, 0.0f, 0.0));
-	obj->setDimension(glm::vec3(100.0f, 100.0f, 1.0f));
-	obj->setShader(shader);
-	objects.push_back(obj); //adiciona o terceiro obj
-
 	//Carregamento das texturas (pode ser feito intercalado na criação)
 	//Futuramente, utilizar classe de materiais e armazenar dimensoes, etc
-	unsigned int texID = loadTexture("../textures/mario.png");
+	unsigned int texID = loadTexture("../textures/scott_pilgrim.png");
 	objects[0]->setTexture(texID);
-
-	texID = loadTexture("../textures/wall.jpg");
-	objects[1]->setTexture(texID);
-	objects[2]->setTexture(texID);
+	objects[0]->setNumAnims(SCOTT_ANIM_COUNT);
+	objects[0]->setNumFrames(SCOTT_FRAME_COUNT);
+	objects[0]->setAnimIndex(SCOTT_MOVE_RIGHT);
+	objects[0]->updateVAO();
 
 	//Definindo a janela do mundo (ortho2D)
 	ortho2D[0] = 0.0f; //xMin
@@ -193,10 +199,9 @@ void SceneManager::setupScene()
 	//Habilita transparência
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 }
 
-void SceneManager::setupCamera2D() //TO DO: parametrizar aqui
+void SceneManager::setupCamera2D()
 {
 	float zNear = -1.0, zFar = 1.0; //estão fixos porque não precisamos mudar
 
