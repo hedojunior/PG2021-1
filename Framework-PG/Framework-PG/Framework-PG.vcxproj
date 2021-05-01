@@ -146,12 +146,14 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="SpriteFactory.cpp" />
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="SpriteFactory.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>

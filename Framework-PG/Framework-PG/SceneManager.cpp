@@ -7,14 +7,14 @@ static bool resized;
 static GLuint width, height;
 
 //Propriedades constantes
-static int const SCOTT_FRAME_COUNT = 8;
-static int const SCOTT_ANIM_COUNT = 2;
 static int const SCOTT_MOVE_LEFT = 0;
 static int const SCOTT_MOVE_RIGHT = 1;
 static int const FPS = 14;
-static float const LEFT_BOUNDARY = 50.0f;
+
+static float const LEFT_BOUNDARY = 60.0f;
 static float const RIGHT_BOUNDARY = 750.0f;
-static float const FLOOR_LEVEL = 150.0f;
+static float const FLOOR_LEVEL = 160.0f;
+
 static float const MOVEMENT_FACTOR = 25.0f;
 
 SceneManager::SceneManager()
@@ -31,6 +31,7 @@ void SceneManager::initialize(GLuint w, GLuint h)
 	height = h;
 	timer = new Timer;
 	waitingTime = 0;
+	factory = new SpriteFactory;
 	
 	// GLFW - GLEW - OPENGL general setup -- TODO: config file
 	initializeGraphics();
@@ -116,7 +117,7 @@ void SceneManager::update()
 	}
 	else
 	{
-		objects[1]->stopAnimating();
+		objects[6]->stopAnimating();
 	}
 		
 }
@@ -145,23 +146,23 @@ void SceneManager::render()
 
 void SceneManager::moveRight()
 {
-	objects[1]->setAnimationIndex(SCOTT_MOVE_RIGHT);
+	objects[6]->setAnimationIndex(SCOTT_MOVE_RIGHT);
 
-	if (objects[1]->canMoveRight(RIGHT_BOUNDARY))
+	if (objects[6]->canMoveRight(RIGHT_BOUNDARY))
 	{
-		objects[1]->beginAnimating();
-		objects[1]->incrementXAxisPosition(MOVEMENT_FACTOR);
+		objects[6]->beginAnimating();
+		objects[6]->updateXAxisPosition(MOVEMENT_FACTOR);
 	}
 }
 
 void SceneManager::moveLeft()
 {
-	objects[1]->setAnimationIndex(SCOTT_MOVE_LEFT);
+	objects[6]->setAnimationIndex(SCOTT_MOVE_LEFT);
 
-	if (objects[1]->canMoveLeft(LEFT_BOUNDARY))
+	if (objects[6]->canMoveLeft(LEFT_BOUNDARY))
 	{
-		objects[1]->beginAnimating();
-		objects[1]->incrementXAxisPosition(-MOVEMENT_FACTOR);
+		objects[6]->beginAnimating();
+		objects[6]->updateXAxisPosition(-MOVEMENT_FACTOR);
 	}
 }
 
@@ -177,17 +178,14 @@ void SceneManager::run()
 	{
 		timer->start();
 
-		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
 
-		//Update method(s)
 		update();
 
-		//Render scene
 		render();
 		
-		// Swap the screen buffers
 		glfwSwapBuffers(window);
+
 		timer->finish();
 
 		calcWaitingTime(FPS, timer->getEllapsedTimeMs());
@@ -201,102 +199,37 @@ void SceneManager::run()
 
 void SceneManager::finish()
 {
-	// Terminate GLFW, clearing any resources allocated by GLFW.
 	glfwTerminate();
 }
 
 
 void SceneManager::setupScene()
 {
-	//Criação dos Sprites iniciais -- pode-se fazer métodos de criação posteriormente
-	
-	//Mínimo: posicao e escala e ponteiro para o shader
-	Sprite* background = new Sprite;
-	background->setPosition(glm::vec3(400.0f, 300.0f, 0.0f));
-	background->setDimension(glm::vec3(800.0f, 600.0f, 1.0f));
-	background->setShader(shader);
-	objects.push_back(background);
+	objects.push_back(factory->sky(shader));
+	objects.push_back(factory->background(shader));
+	objects.push_back(factory->backHouses(shader));
+	objects.push_back(factory->frontHouses(shader));
+	objects.push_back(factory->minorBuildings(shader));
+	objects.push_back(factory->streetAndLamps(shader));
 
-	Sprite* scott = new Sprite;
-	scott->setPosition(glm::vec3(LEFT_BOUNDARY, FLOOR_LEVEL, 0.0));
-	scott->setDimension(glm::vec3(108.0f, 140.0f, 1.0f)); //note que depois podemos reescalar conforme tamanho da sprite
-	scott->setShader(shader);
+	Sprite* scott = factory->scottPilgrim(shader, LEFT_BOUNDARY, FLOOR_LEVEL, SCOTT_MOVE_RIGHT);
 	objects.push_back(scott);
 
-	//Carregamento das texturas (pode ser feito intercalado na criação)
-	//Futuramente, utilizar classe de materiais e armazenar dimensoes, etc
-	unsigned int texID = loadTexture("../textures/background.jpg");
-	objects[0]->setTexture(texID);
-	
-	texID = loadTexture("../textures/scott_pilgrim.png");
-	objects[1]->setTexture(texID);
-	objects[1]->setSpritesheet(SCOTT_ANIM_COUNT, SCOTT_FRAME_COUNT, SCOTT_MOVE_RIGHT);
-	objects[1]->updateVAO();
+	ortho2D[0] = 0.0f;
+	ortho2D[1] = 800.0f;
+	ortho2D[2] = 0.0f;
+	ortho2D[3] = 600.0f;
 
-	//Definindo a janela do mundo (ortho2D)
-	ortho2D[0] = 0.0f; //xMin
-	ortho2D[1] = 800.0f; //xMax
-	ortho2D[2] = 0.0f; //yMin
-	ortho2D[3] = 600.0f; //yMax
-
-	//Habilita transparência
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void SceneManager::setupCamera2D()
 {
-	float zNear = -1.0, zFar = 1.0; //estão fixos porque não precisamos mudar
+	float zNear = -1.0, zFar = 1.0;
 
 	projection = glm::ortho(ortho2D[0], ortho2D[1], ortho2D[2], ortho2D[3], zNear, zFar);
 
-
-	//Obtendo o identificador da matriz de projeção para enviar para o shader
 	GLint projLoc = glGetUniformLocation(shader->ID, "projection");
-	//Enviando a matriz de projeção para o shader
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-}
-
-unsigned int SceneManager::loadTexture(string filename)
-{
-	unsigned int texture;
-
-	// load and create a texture 
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
-										   // set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// load image, create texture and generate mipmaps
-	int width, height, nrChannels;
-	
-	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
-	
-	if (data)
-	{
-		if (nrChannels == 3) //jpg, bmp
-		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		}
-		else //png
-		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		}
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-
-	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
-
-	glActiveTexture(GL_TEXTURE0);
-
-	return texture;
 }

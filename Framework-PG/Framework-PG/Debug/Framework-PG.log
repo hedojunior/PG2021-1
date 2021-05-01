@@ -1,5 +1,5 @@
 ﻿  SceneManager.cpp
-C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\SceneManager.cpp(139,20): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\SceneManager.cpp(193,48): warning C4244: 'argumento': conversão de 'double' para 'int', possível perda de dados
-C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\SceneManager.cpp(197,10): warning C4244: 'argumento': conversão de 'double' para 'DWORD', possível perda de dados
+C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\SceneManager.cpp(140,20): warning C4018: '<': incompatibilidade de signed/unsigned
+C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\SceneManager.cpp(191,48): warning C4244: 'argumento': conversão de 'double' para 'int', possível perda de dados
+C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\SceneManager.cpp(195,10): warning C4244: 'argumento': conversão de 'double' para 'DWORD', possível perda de dados
   Framework-PG.vcxproj -> C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Debug\Framework-PG.exe

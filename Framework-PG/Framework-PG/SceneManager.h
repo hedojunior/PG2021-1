@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "Sprite.h" 
 #include "Timer.h"
+#include "SpriteFactory.h"
 
 // GLM
 #include <glm/glm.hpp>
@@ -10,8 +11,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <vector>
-
-using namespace std;
 
 class SceneManager
 {
@@ -44,7 +43,6 @@ public:
 	void addShader(string vFilename, string fFilename);
 	void setupScene(); //antigo setupGeometry
 	void setupCamera2D();
-	unsigned int loadTexture(string filename); 
 
 private:
 	
@@ -54,10 +52,12 @@ private:
 	//Programa de shader (por enquanto, assumimos apenas 1 instância)
 	Shader *shader;
 
-	//Timer para controlar FPS
+	//Controle de FPS
 	Timer *timer;
-
 	double waitingTime;
+
+	//Factory para Sprites
+	SpriteFactory* factory;
 
 	//Câmera 2D - Matriz de projeção (ortográfica) com os limites em x,y
 	glm::vec4 ortho2D; //xmin, xmax, ymin, ymax

@@ -22,13 +22,10 @@ public:
 	void setTexture(int texID);
 	void setShader(Shader* shader) { this->shader = shader; shader->Use(); }
 	void setPosition(glm::vec3 pos) { this->pos = pos; }
-	void incrementXAxisPosition(float factor) { this->pos = glm::vec3(this->pos.x + factor, this->pos.y, this->pos.z); }
 	void setDimension(glm::vec3 scale) { this->scale = scale; }
 	void setAngle(float angle) { this->angle = angle; } //para 3D precisa angulo por eixo ou quaternion
 	void setSpritesheet(int numAnim, int numFrames, int initialAnim);
 	void setAnimationIndex(int iAnim) { this->iAnim = iAnim; }
-	void beginAnimating() { this->isAnimating = true; }
-	void stopAnimating() { this->isAnimating = false; }
 
 	//Para controle direto da matriz de transformações
 	void setRotation(float angle, glm::vec3 axis, bool reset = true);
@@ -41,8 +38,13 @@ public:
 
 	//métodos para animação
 	void updateVAO();
+	void beginAnimating() { this->isAnimating = true; }
+	void stopAnimating() { this->isAnimating = false; }
+
 	bool canMoveRight(float boundary) { return pos.x < boundary; }
 	bool canMoveLeft(float boundary) { return pos.x > boundary; }
+
+	void updateXAxisPosition(float factor) { this->pos = glm::vec3(this->pos.x + factor, this->pos.y, this->pos.z); }
 
 protected:
 	//Atributos gerais
