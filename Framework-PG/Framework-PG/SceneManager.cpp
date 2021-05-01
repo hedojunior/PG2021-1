@@ -6,11 +6,14 @@ static bool keys[1024];
 static bool resized;
 static GLuint width, height;
 
-//Propriedades constantez
+//Propriedades constantes
 static int const SCOTT_FRAME_COUNT = 8;
 static int const SCOTT_ANIM_COUNT = 2;
 static int const SCOTT_MOVE_LEFT = 0;
 static int const SCOTT_MOVE_RIGHT = 1;
+static float const LEFT_BOUNDARY = 30.0f;
+static float const RIGHT_BOUNDARY = 570.0f;
+static float const FLOOR_LEVEL = 150.0f;
 
 SceneManager::SceneManager()
 {
@@ -175,20 +178,27 @@ void SceneManager::setupScene()
 	//Criação dos Sprites iniciais -- pode-se fazer métodos de criação posteriormente
 	
 	//Mínimo: posicao e escala e ponteiro para o shader
-	Sprite* obj = new Sprite;
-	obj->setPosition(glm::vec3(400.0f, 300.0f, 0.0));
-	obj->setDimension(glm::vec3(108.0f, 140.0f, 1.0f)); //note que depois podemos reescalar conforme tamanho da sprite
-	obj->setShader(shader);
-	objects.push_back(obj); //adiciona o primeiro obj
+	Sprite* background = new Sprite;
+	background->setPosition(glm::vec3(400.0f, 300.0f, 0.0f));
+	background->setDimension(glm::vec3(800.0f, 600.0f, 1.0f));
+	background->setShader(shader);
+	objects.push_back(background);
+
+	Sprite* scott = new Sprite;
+	scott->setPosition(glm::vec3(LEFT_BOUNDARY, FLOOR_LEVEL, 0.0));
+	scott->setDimension(glm::vec3(108.0f, 140.0f, 1.0f)); //note que depois podemos reescalar conforme tamanho da sprite
+	scott->setShader(shader);
+	objects.push_back(scott);
 
 	//Carregamento das texturas (pode ser feito intercalado na criação)
 	//Futuramente, utilizar classe de materiais e armazenar dimensoes, etc
-	unsigned int texID = loadTexture("../textures/scott_pilgrim.png");
+	unsigned int texID = loadTexture("../textures/background.jpg");
 	objects[0]->setTexture(texID);
-	objects[0]->setNumAnims(SCOTT_ANIM_COUNT);
-	objects[0]->setNumFrames(SCOTT_FRAME_COUNT);
-	objects[0]->setAnimIndex(SCOTT_MOVE_RIGHT);
-	objects[0]->updateVAO();
+	
+	texID = loadTexture("../textures/scott_pilgrim.png");
+	objects[1]->setTexture(texID);
+	objects[1]->setSpritesheet(SCOTT_ANIM_COUNT, SCOTT_FRAME_COUNT, SCOTT_MOVE_RIGHT);
+	objects[1]->updateVAO();
 
 	//Definindo a janela do mundo (ortho2D)
 	ortho2D[0] = 0.0f; //xMin

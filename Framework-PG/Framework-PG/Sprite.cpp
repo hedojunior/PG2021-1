@@ -9,7 +9,10 @@ void Sprite::initialize()
 {
 	nAnims = 1;
 	nFrames = 1;
+	iFrame = 0;
 	iAnim = 0;
+	usesSpritesheet = false;
+	isAnimating = false;
 
 	updateVAO();
 
@@ -45,6 +48,14 @@ void Sprite::setScale(glm::vec3 scaleFactors, bool reset)
 	scale = scaleFactors;
 }
 
+void Sprite::setSpritesheet(int numAnim, int numFrames, int initialAnim)
+{
+	this->nAnims = numAnim;
+	this->nFrames = numFrames;
+	this->iAnim = initialAnim;
+	this->usesSpritesheet = true;
+}
+
 void Sprite::draw()
 {
 	glBindTexture(GL_TEXTURE_2D, texID);
@@ -70,12 +81,17 @@ void Sprite::update()
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
 	GLint offsetXLoc = glGetUniformLocation(shader->ID, "offsetX");
-	glUniform1f(offsetXLoc, iFrame * dX);
+	float offsetX = (usesSpritesheet && isAnimating) ? iFrame * dX : 0;
+	glUniform1f(offsetXLoc, offsetX);
 
 	GLint offsetYLoc = glGetUniformLocation(shader->ID, "offsetY");
-	glUniform1f(offsetYLoc, iAnim * dY);
+	float offsetY = usesSpritesheet ? iAnim * dY : 0;
+	glUniform1f(offsetYLoc, offsetY);
 
-	iFrame = (iFrame + 1) % nFrames;
+	if (usesSpritesheet && isAnimating) 
+	{
+		iFrame = (iFrame + 1) % nFrames;
+	}
 }
 
 void Sprite::updateVAO()

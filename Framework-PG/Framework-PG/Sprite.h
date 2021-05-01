@@ -24,10 +24,7 @@ public:
 	void setPosition(glm::vec3 pos) { this->pos = pos; } //dica: fazer setX e setY individualmente
 	void setDimension(glm::vec3 scale) { this->scale = scale; }
 	void setAngle(float angle) { this->angle = angle; } //para 3D precisa angulo por eixo ou quaternion
-	void setNumAnims(int numAnim) { this->nAnims = numAnim; } 
-	void setNumFrames(int numFrames) { this->nFrames = numFrames; }
-	void setAnimIndex(int iAnim) { this->iAnim = iAnim; }
-	
+	void setSpritesheet(int numAnim, int numFrames, int initialAnim);
 
 	//Para controle direto da matriz de transformações
 	void setRotation(float angle, glm::vec3 axis, bool reset = true);
@@ -61,5 +58,7 @@ protected:
 	int iAnim, iFrame; //indices da animação e frame atual
 
 	float dX, dY;
+
+	bool usesSpritesheet, isAnimating;
 };
 
