@@ -5,6 +5,7 @@
 #include "Timer.h"
 #include "Coin.h"
 #include "SpriteFactory.h"
+#include "DeeJay.h"
 
 // GLM
 #include <glm/glm.hpp>
@@ -69,18 +70,21 @@ private:
 
 	//Timer para controlar spawn de moedas
 	Timer *gameTimer;
+
+	//Musica
+	DeeJay *dj;
 	
+	//Variáveis de controle para moedas
 	double coinSpawnInterval;
 	double lastSpawnInSeconds;
 	double coinFallingSpeedFactor;
 	int collectedCoins;
 	int fallenCoins;
 
-	//Câmera 2D - Matriz de projeção (ortográfica) com os limites em x,y
-	glm::vec4 ortho2D; //xmin, xmax, ymin, ymax
+	glm::vec4 ortho2D;
 	glm::mat4 projection;
 
-	//Nossos objetos (sprites) da cena
+	//Sprites
 	Sprite* scottPilgrim;
 
 	vector <Sprite*> objects;

@@ -10,9 +10,10 @@
 using namespace std;
 
 #include "SceneManager.h"
-
+#include <Windows.h>
 
 // The MAIN function, from here we start the application and run the game loop
+
 int main()
 {
 	SceneManager *scene = new SceneManager;
@@ -24,5 +25,6 @@ int main()
 	
 	return 0;
 }
+
 
 

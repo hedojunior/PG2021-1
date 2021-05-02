@@ -28,6 +28,7 @@ SceneManager::SceneManager()
 	lastSpawnInSeconds = 0;
 	coinFallingSpeedFactor = 1;
 	collectedCoins = 0;
+	dj = new DeeJay;
 }
 
 SceneManager::~SceneManager()
@@ -39,6 +40,7 @@ void SceneManager::initialize(GLuint w, GLuint h)
 	width = w;
 	height = h;
 	gameTimer->start();
+	dj->playSoundtrack();
 	
 	// GLFW - GLEW - OPENGL general setup -- TODO: config file
 	initializeGraphics();
@@ -259,6 +261,7 @@ void SceneManager::run()
 
 void SceneManager::finish()
 {
+	dj->stopSoundtrack();
 	glfwTerminate();
 }
 
