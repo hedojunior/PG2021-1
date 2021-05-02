@@ -34,7 +34,7 @@ public:
 	
 	//Chamados no ciclo do SceneManager
 	void draw();
-	void update();
+	virtual void update();
 
 	//métodos para animação
 	void updateVAO();

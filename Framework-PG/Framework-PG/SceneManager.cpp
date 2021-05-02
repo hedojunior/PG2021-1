@@ -10,6 +10,7 @@ static GLuint width, height;
 static int const SCOTT_MOVE_LEFT = 0;
 static int const SCOTT_MOVE_RIGHT = 1;
 static int const FPS = 14;
+static int const COIN_TOTAL = 50;
 
 static float const LEFT_BOUNDARY = 60.0f;
 static float const RIGHT_BOUNDARY = 750.0f;
@@ -19,6 +20,14 @@ static float const MOVEMENT_FACTOR = 25.0f;
 
 SceneManager::SceneManager()
 {
+	timer = new Timer;
+	waitingTime = 0;
+	factory = new SpriteFactory;
+	gameTimer = new Timer;
+	coinSpawnInterval = 2;
+	lastSpawnInSeconds = 0;
+	coinFallingSpeedFactor = 1;
+	collectedCoins = 0;
 }
 
 SceneManager::~SceneManager()
@@ -29,14 +38,6 @@ void SceneManager::initialize(GLuint w, GLuint h)
 {
 	width = w;
 	height = h;
-	timer = new Timer;
-	waitingTime = 0;
-	factory = new SpriteFactory;
-	gameTimer = new Timer;
-	coinSpawnInterval = 3;
-	lastSpawnInSeconds = 0;
-	coinFallingSpeedFactor = 1.0;
-
 	gameTimer->start();
 	
 	// GLFW - GLEW - OPENGL general setup -- TODO: config file
@@ -129,11 +130,23 @@ void SceneManager::update()
 
 	if (gameTimer->getTimeInSeconds() - lastSpawnInSeconds >= coinSpawnInterval)
 	{
-		//lastSpawnInSeconds = gameTimer->getTimeInSeconds();
-		//cout << lastSpawnInSeconds;
-		//drop coin
+		lastSpawnInSeconds = gameTimer->getTimeInSeconds();
+		dropCoin();
 	}
 		
+}
+
+void SceneManager::dropCoin()
+{
+	if (fallenCoins > 0 && fallenCoins % 5 == 0 && coinFallingSpeedFactor <= 2.4)
+	{
+		coinFallingSpeedFactor = coinFallingSpeedFactor + 0.2;
+	}
+
+	Coin* coin = coins[COIN_TOTAL - 1 - fallenCoins];
+	coin->startFalling(coinFallingSpeedFactor);
+	fallenCoins += 1;
+
 }
 
 void SceneManager::render()
@@ -227,7 +240,7 @@ void SceneManager::setupScene()
 	scottPilgrim = factory->scottPilgrim(shader, LEFT_BOUNDARY, FLOOR_LEVEL, SCOTT_MOVE_RIGHT);
 	objects.push_back(scottPilgrim);
 
-	for (int i = 0; i <= 50; i++)
+	for (int i = 0; i <= COIN_TOTAL; i++)
 	{
 		Coin* coin = factory->coin(shader);
 		coins.push_back(coin);

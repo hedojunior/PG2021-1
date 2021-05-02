@@ -71,6 +71,8 @@ private:
 	double coinSpawnInterval;
 	double lastSpawnInSeconds;
 	double coinFallingSpeedFactor;
+	int collectedCoins;
+	int fallenCoins;
 
 	//Câmera 2D - Matriz de projeção (ortográfica) com os limites em x,y
 	glm::vec4 ortho2D; //xmin, xmax, ymin, ymax

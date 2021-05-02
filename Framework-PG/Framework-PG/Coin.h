@@ -2,6 +2,8 @@
 
 #include "Sprite.h"
 
+static const float COIN_MOVEMENT_FACTOR = -10.0f;
+
 class Coin : public Sprite
 {
 public:
@@ -11,6 +13,8 @@ public:
 	}
 
 	bool isFalling;
+	float downwardsTranslationY;
 	
-	bool collidesWith(Sprite* otherSprite);
+	void startFalling(float speedFactor);
+	void update() override;
 };
