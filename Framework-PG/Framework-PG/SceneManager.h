@@ -50,6 +50,8 @@ public:
 	void setupScene(); //antigo setupGeometry
 	void setupCamera2D();
 
+	void displayMessageBox();
+
 private:
 	
 	//Janela GLFW (por enquanto, assumimos apenas 1 instância)

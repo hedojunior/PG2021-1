@@ -123,8 +123,11 @@ void SceneManager::update()
 
 		if (fallenCoins == COIN_TOTAL)
 		{
-			//TODO: finish game
-			return;
+			if (!coins.front()->isFalling)
+			{
+				displayMessageBox();
+				return;
+			}
 		}
 		else
 		{
@@ -139,12 +142,33 @@ void SceneManager::update()
 			int index = COIN_TOTAL - 1 - i;
 			Coin* coin = coins[index];
 
-			if (coin->isFalling && coin->collidesWith(scottPilgrim))
+			if (coin->isFalling && scottPilgrim->collidesWith(coin))
 			{
 				coin->isCollected = true;
 			}
 		}
 	}
+}
+
+void SceneManager::displayMessageBox()
+{
+	char buffer[100];
+	int collectedCoins = 0;
+
+	for (int i = 0; i < coins.size(); i++)
+	{
+		if (coins[i]->isCollected)
+		{
+			collectedCoins += 1;
+		}
+	}
+
+	sprintf_s(buffer, "Você coletou %d/%d moedas.", collectedCoins, COIN_TOTAL);
+	cout << buffer;
+
+	MessageBox(0, buffer, "Fim de Jogo!", MB_OK);
+
+	finish();
 }
 
 void SceneManager::dropCoin()
