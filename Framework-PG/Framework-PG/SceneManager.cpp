@@ -10,7 +10,7 @@ static GLuint width, height;
 static int const SCOTT_MOVE_LEFT = 0;
 static int const SCOTT_MOVE_RIGHT = 1;
 static int const FPS = 14;
-static int const COIN_TOTAL = 50;
+static int const COIN_TOTAL = 5;
 
 static float const LEFT_BOUNDARY = 60.0f;
 static float const RIGHT_BOUNDARY = 750.0f;
@@ -47,36 +47,26 @@ void SceneManager::initialize(GLuint w, GLuint h)
 
 void SceneManager::initializeGraphics()
 {
-	// Init GLFW
 	glfwInit();
 
-	// Create a GLFWwindow object that we can use for GLFW's functions
-	window = glfwCreateWindow(width, height, "Hello Sprites", nullptr, nullptr);
+	window = glfwCreateWindow(width, height, "Golden Shower", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
-	// Set the required callback functions
 	glfwSetKeyCallback(window, key_callback);
 
-	//Setando a callback de redimensionamento da janela
 	glfwSetWindowSizeCallback(window, resize);
 	
-	// glad: load all OpenGL function pointers
-	// ---------------------------------------
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 
 	}
 
-	// Build and compile our shader program
 	addShader("../shaders/transformations.vs", "../shaders/transformations.frag");
 
-	//setup the scene -- LEMBRANDO QUE A DESCRIÇÃO DE UMA CENA PODE VIR DE ARQUIVO(S) DE 
-	// CONFIGURAÇÃO
 	setupScene();
 
-	resized = true; //para entrar no setup da câmera na 1a vez
-
+	resized = true; 
 }
 
 void SceneManager::addShader(string vFilename, string fFilename)
@@ -127,13 +117,34 @@ void SceneManager::update()
 		scottPilgrim->stopAnimating();
 	}
 
-
 	if (gameTimer->getTimeInSeconds() - lastSpawnInSeconds >= coinSpawnInterval)
 	{
 		lastSpawnInSeconds = gameTimer->getTimeInSeconds();
-		dropCoin();
+
+		if (fallenCoins == COIN_TOTAL)
+		{
+			//TODO: finish game
+			return;
+		}
+		else
+		{
+			dropCoin();
+		}
 	}
-		
+
+	if (fallenCoins > 0 && fallenCoins <= COIN_TOTAL)
+	{
+		for (int i = 0; i < fallenCoins; i++)
+		{
+			int index = COIN_TOTAL - 1 - i;
+			Coin* coin = coins[index];
+
+			if (coin->isFalling && coin->collidesWith(scottPilgrim))
+			{
+				coin->isCollected = true;
+			}
+		}
+	}
 }
 
 void SceneManager::dropCoin()
