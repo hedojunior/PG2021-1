@@ -44,6 +44,8 @@ public:
 	bool canMoveRight(float boundary) { return pos.x < boundary; }
 	bool canMoveLeft(float boundary) { return pos.x > boundary; }
 
+	bool collidesWith(Sprite* otherSprite);
+
 	void updateXAxisPosition(float factor) { this->pos = glm::vec3(this->pos.x + factor, this->pos.y, this->pos.z); }
 
 protected:

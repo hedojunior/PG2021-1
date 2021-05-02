@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "Sprite.h" 
 #include "Timer.h"
+#include "Coin.h"
 #include "SpriteFactory.h"
 
 // GLM
@@ -31,12 +32,17 @@ public:
 
 	//Métodos chamados no run (ciclo)
 	void update();
-	void calcWaitingTime(int fps, int elapsedTime);
 	void render();
+
+	void calcWaitingTime(int fps, int elapsedTime)
+	{
+		waitingTime = 1000 / fps - elapsedTime;
+	};
 
 	//Métodos de animação
 	void moveRight();
 	void moveLeft();
+	void dropCoin();
 
 	//Métodos para configuração e carregamento dos elementos da cena
 	void initializeGraphics();
@@ -59,12 +65,22 @@ private:
 	//Factory para Sprites
 	SpriteFactory* factory;
 
+	//Timer para controlar spawn de moedas
+	Timer *gameTimer;
+	
+	double coinSpawnInterval;
+	double lastSpawnInSeconds;
+	double coinFallingSpeedFactor;
+
 	//Câmera 2D - Matriz de projeção (ortográfica) com os limites em x,y
 	glm::vec4 ortho2D; //xmin, xmax, ymin, ymax
 	glm::mat4 projection;
 
 	//Nossos objetos (sprites) da cena
+	Sprite* scottPilgrim;
+
 	vector <Sprite*> objects;
+	vector <Coin*> coins;
 
 };
 

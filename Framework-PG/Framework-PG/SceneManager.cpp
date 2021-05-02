@@ -32,6 +32,12 @@ void SceneManager::initialize(GLuint w, GLuint h)
 	timer = new Timer;
 	waitingTime = 0;
 	factory = new SpriteFactory;
+	gameTimer = new Timer;
+	coinSpawnInterval = 3;
+	lastSpawnInSeconds = 0;
+	coinFallingSpeedFactor = 1.0;
+
+	gameTimer->start();
 	
 	// GLFW - GLEW - OPENGL general setup -- TODO: config file
 	initializeGraphics();
@@ -117,58 +123,64 @@ void SceneManager::update()
 	}
 	else
 	{
-		objects[6]->stopAnimating();
+		scottPilgrim->stopAnimating();
+	}
+
+
+	if (gameTimer->getTimeInSeconds() - lastSpawnInSeconds >= coinSpawnInterval)
+	{
+		//lastSpawnInSeconds = gameTimer->getTimeInSeconds();
+		//cout << lastSpawnInSeconds;
+		//drop coin
 	}
 		
 }
 
 void SceneManager::render()
 {
-	// Clear the colorbuffer
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	if (resized) //se houve redimensionamento na janela, redefine a projection matrix
+	if (resized)
 	{
 		setupCamera2D();
 		resized = false;
 	}
-
-	//atualiza e desenha os Sprites
 
 	for (int i = 0; i < objects.size(); i++)
 	{
 		objects[i]->update();
 		objects[i]->draw();
 	}
+
+	for (int i = 0; i < coins.size(); i++)
+	{
+		coins[i]->update();
+		coins[i]->draw();
+	}
 }
 
 void SceneManager::moveRight()
 {
-	objects[6]->setAnimationIndex(SCOTT_MOVE_RIGHT);
+	scottPilgrim->setAnimationIndex(SCOTT_MOVE_RIGHT);
 
-	if (objects[6]->canMoveRight(RIGHT_BOUNDARY))
+	if (scottPilgrim->canMoveRight(RIGHT_BOUNDARY))
 	{
-		objects[6]->beginAnimating();
-		objects[6]->updateXAxisPosition(MOVEMENT_FACTOR);
+		scottPilgrim->beginAnimating();
+		scottPilgrim->updateXAxisPosition(MOVEMENT_FACTOR);
 	}
 }
 
 void SceneManager::moveLeft()
 {
-	objects[6]->setAnimationIndex(SCOTT_MOVE_LEFT);
+	scottPilgrim->setAnimationIndex(SCOTT_MOVE_LEFT);
 
-	if (objects[6]->canMoveLeft(LEFT_BOUNDARY))
+	if (scottPilgrim->canMoveLeft(LEFT_BOUNDARY))
 	{
-		objects[6]->beginAnimating();
-		objects[6]->updateXAxisPosition(-MOVEMENT_FACTOR);
+		scottPilgrim->beginAnimating();
+		scottPilgrim->updateXAxisPosition(-MOVEMENT_FACTOR);
 	}
-}
-
-void SceneManager::calcWaitingTime(int fps, int elapsedTime)
-{
-	waitingTime = 1000 / fps - elapsedTime;
 }
 
 void SceneManager::run()
@@ -212,8 +224,14 @@ void SceneManager::setupScene()
 	objects.push_back(factory->minorBuildings(shader));
 	objects.push_back(factory->streetAndLamps(shader));
 
-	Sprite* scott = factory->scottPilgrim(shader, LEFT_BOUNDARY, FLOOR_LEVEL, SCOTT_MOVE_RIGHT);
-	objects.push_back(scott);
+	scottPilgrim = factory->scottPilgrim(shader, LEFT_BOUNDARY, FLOOR_LEVEL, SCOTT_MOVE_RIGHT);
+	objects.push_back(scottPilgrim);
+
+	for (int i = 0; i <= 50; i++)
+	{
+		Coin* coin = factory->coin(shader);
+		coins.push_back(coin);
+	}
 
 	ortho2D[0] = 0.0f;
 	ortho2D[1] = 800.0f;

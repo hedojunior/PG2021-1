@@ -56,11 +56,21 @@ void Sprite::setSpritesheet(int numAnim, int numFrames, int initialAnim)
 	this->usesSpritesheet = true;
 }
 
+bool Sprite::collidesWith(Sprite* otherSprite)
+{
+	bool collisionX = this->pos.x + this->scale.x >= otherSprite->pos.x &&
+		otherSprite->pos.x + otherSprite->scale.x >= this->pos.x;
+
+	bool collisionY = this->pos.y + this->scale.y >= otherSprite->pos.y &&
+		otherSprite->pos.y + otherSprite->scale.y >= this->pos.y;
+
+	return collisionX && collisionY;
+}
+
 void Sprite::draw()
 {
 	glBindTexture(GL_TEXTURE_2D, texID);
 	glUniform1i(glGetUniformLocation(shader->ID, "ourTexture1"), 0);
-
 
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -69,15 +79,11 @@ void Sprite::draw()
 
 void Sprite::update()
 {
-	//Por enquanto o update é basicamente pedir para atualizar no shader 
-	//a matriz de transformação
-
 	setTranslation(pos);
 	setRotation(angle, glm::vec3(0.0f, 0.0f, 1.0f), false);
 	setScale(scale, false);
 
 	GLint transformLoc = glGetUniformLocation(shader->ID, "model");
-	// Pass them to the shaders
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
 	GLint offsetXLoc = glGetUniformLocation(shader->ID, "offsetX");

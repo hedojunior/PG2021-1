@@ -1,18 +1,5 @@
 #include "SpriteFactory.h"
 
-#include "Sprite.h"
-#include "Shader.h"
-
-SpriteFactory::SpriteFactory()
-{
-
-}
-
-SpriteFactory::~SpriteFactory()
-{
-
-}
-
 Sprite* SpriteFactory::commonLayer(string textureFile, Shader* shader)
 {
 	Sprite* layer = new Sprite;
@@ -67,6 +54,27 @@ Sprite* SpriteFactory::scottPilgrim(Shader* shader, float initialX, float initia
 	scott->updateVAO();
 
 	return scott;
+}
+
+static int const COIN_FRAME_COUNT = 4;
+static int const COIN_ANIM_COUNT = 1;
+static float const COIN_INITIAL_Y = 700;
+
+Coin* SpriteFactory::coin(Shader* shader)
+{
+	Coin* coin = new Coin;
+	float randomFactor = rand() % (750 - 60 + 1) + 60;
+	
+	coin->setPosition(glm::vec3(randomFactor, COIN_INITIAL_Y, 0.0));
+	coin->setDimension(glm::vec3(60.0f, 40.0f, 1.0f));
+	coin->setShader(shader);
+
+	unsigned int textureID = loadTexture("../textures/coin.png");
+	coin->setTexture(textureID);
+	coin->setSpritesheet(COIN_ANIM_COUNT, COIN_FRAME_COUNT, 0);
+	coin->updateVAO();
+
+	return coin;
 }
 
 Sprite* SpriteFactory::streetAndLamps(Shader* shader)
