@@ -1,10 +1,4 @@
-﻿  DeeJay.cpp
-  SceneManager.cpp
-C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\SceneManager.cpp(160,20): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\SceneManager.cpp(184,21): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
-C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\SceneManager.cpp(201,20): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\SceneManager.cpp(207,20): warning C4018: '<': incompatibilidade de signed/unsigned
-C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\SceneManager.cpp(253,48): warning C4244: 'argumento': conversão de 'double' para 'int', possível perda de dados
-C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\SceneManager.cpp(257,10): warning C4244: 'argumento': conversão de 'double' para 'DWORD', possível perda de dados
-  Gerando Código...
+﻿  Sprite.cpp
+C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\Sprite.cpp(110,11): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Framework-PG\Sprite.cpp(111,11): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
   Framework-PG.vcxproj -> C:\Users\eccke\pg-2021-01\fork-pg\Framework-PG\Debug\Framework-PG.exe

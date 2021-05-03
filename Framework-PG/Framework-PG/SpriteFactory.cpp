@@ -13,31 +13,19 @@ Sprite* SpriteFactory::commonLayer(string textureFile, Shader* shader)
 	return layer;
 }
 
-Sprite* SpriteFactory::sky(Shader* shader)
-{
-	return commonLayer("../textures/sky.png", shader);
-}
+Sprite* SpriteFactory::sky(Shader* shader) { return commonLayer("../textures/sky.png", shader); }
 
-Sprite* SpriteFactory::background(Shader* shader)
-{
-	return commonLayer("../textures/back.png", shader);
-}
+Sprite* SpriteFactory::background(Shader* shader) { return commonLayer("../textures/back.png", shader); }
 
-Sprite* SpriteFactory::backHouses(Shader* shader)
-{
-	return commonLayer("../textures/houses3.png", shader);
-}
+Sprite* SpriteFactory::backHouses(Shader* shader) { return commonLayer("../textures/houses3.png", shader); }
 
-Sprite* SpriteFactory::frontHouses(Shader* shader)
-{
-	return commonLayer("../textures/houses1.png", shader);
-}
+Sprite* SpriteFactory::frontHouses(Shader* shader) { return commonLayer("../textures/houses1.png", shader); }
 
-Sprite* SpriteFactory::minorBuildings(Shader* shader)
-{
-	return commonLayer("../textures/minishop&callbox.png", shader);
-}
+Sprite* SpriteFactory::minorBuildings(Shader* shader) { return commonLayer("../textures/minishop&callbox.png", shader); }
 
+Sprite* SpriteFactory::streetAndLamps(Shader* shader) { return commonLayer("../textures/road&lamps.png", shader); }
+
+//Número de frames e animações da spritesheet do Scott.
 static int const SCOTT_FRAME_COUNT = 8;
 static int const SCOTT_ANIM_COUNT = 2;
 
@@ -56,6 +44,7 @@ Sprite* SpriteFactory::scottPilgrim(Shader* shader, float initialX, float initia
 	return scott;
 }
 
+//Número de frames e animações da moeda, bem como o Y inicial (em cima da tela)
 static int const COIN_FRAME_COUNT = 4;
 static int const COIN_ANIM_COUNT = 1;
 static float const COIN_INITIAL_Y = 700;
@@ -63,10 +52,12 @@ static float const COIN_INITIAL_Y = 700;
 Coin* SpriteFactory::coin(Shader* shader)
 {
 	Coin* coin = new Coin;
+
+	//Fator randômico para gerar um valor entre 60 e 750 (os limites definidos da tela) para criar a moeda
 	float randomFactor = rand() % (750 - 60 + 1) + 60;
 	
 	coin->setPosition(glm::vec3(randomFactor, COIN_INITIAL_Y, 0.0));
-	coin->setDimension(glm::vec3(60.0f, 40.0f, 1.0f));
+	coin->setDimension(glm::vec3(40.0f, 44.0f, 1.0f));
 	coin->setShader(shader);
 
 	unsigned int textureID = loadTexture("../textures/coin.png");
@@ -76,12 +67,6 @@ Coin* SpriteFactory::coin(Shader* shader)
 
 	return coin;
 }
-
-Sprite* SpriteFactory::streetAndLamps(Shader* shader)
-{
-	return commonLayer("../textures/road&lamps.png", shader);
-}
-
 
 unsigned int SpriteFactory::loadTexture(string filename)
 {

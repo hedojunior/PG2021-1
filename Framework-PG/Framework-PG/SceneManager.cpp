@@ -6,11 +6,11 @@ static bool keys[1024];
 static bool resized;
 static GLuint width, height;
 
-//Propriedades constantes
+//Propriedades constantes (entendo que poderia ser refatorado, mas é o que deu pra fazer)
 static int const SCOTT_MOVE_LEFT = 0;
 static int const SCOTT_MOVE_RIGHT = 1;
 static int const FPS = 14;
-static int const COIN_TOTAL = 5;
+static int const TOTAL_COINS = 30;
 
 static float const LEFT_BOUNDARY = 60.0f;
 static float const RIGHT_BOUNDARY = 750.0f;
@@ -20,14 +20,10 @@ static float const MOVEMENT_FACTOR = 25.0f;
 
 SceneManager::SceneManager()
 {
-	timer = new Timer;
 	waitingTime = 0;
+	timer = new Timer;
 	factory = new SpriteFactory;
-	gameTimer = new Timer;
-	coinSpawnInterval = 2;
-	lastSpawnInSeconds = 0;
-	coinFallingSpeedFactor = 1;
-	collectedCoins = 0;
+	coinManager = new CoinManager(TOTAL_COINS);
 	dj = new DeeJay;
 }
 
@@ -39,10 +35,9 @@ void SceneManager::initialize(GLuint w, GLuint h)
 {
 	width = w;
 	height = h;
-	gameTimer->start();
+	coinManager->start();
 	dj->playSoundtrack();
 	
-	// GLFW - GLEW - OPENGL general setup -- TODO: config file
 	initializeGraphics();
 
 }
@@ -119,13 +114,13 @@ void SceneManager::update()
 		scottPilgrim->stopAnimating();
 	}
 
-	if (gameTimer->getTimeInSeconds() - lastSpawnInSeconds >= coinSpawnInterval)
+	if (coinManager->shouldDropCoin())
 	{
-		lastSpawnInSeconds = gameTimer->getTimeInSeconds();
+		coinManager->markSpawnTime();
 
-		if (fallenCoins == COIN_TOTAL)
+		if (coinManager->allCoinsAreGone())
 		{
-			if (!coins.front()->isFalling)
+			if (!coinManager->lastCoinStillFalling())
 			{
 				displayMessageBox();
 				return;
@@ -133,57 +128,23 @@ void SceneManager::update()
 		}
 		else
 		{
-			dropCoin();
+			coinManager->dropCoin();
 		}
 	}
 
-	if (fallenCoins > 0 && fallenCoins <= COIN_TOTAL)
-	{
-		for (int i = 0; i < fallenCoins; i++)
-		{
-			int index = COIN_TOTAL - 1 - i;
-			Coin* coin = coins[index];
-
-			if (coin->isFalling && scottPilgrim->collidesWith(coin))
-			{
-				coin->isCollected = true;
-			}
-		}
-	}
+	coinManager->checkForCollections(scottPilgrim);
 }
 
 void SceneManager::displayMessageBox()
 {
 	char buffer[100];
-	int collectedCoins = 0;
 
-	for (int i = 0; i < coins.size(); i++)
-	{
-		if (coins[i]->isCollected)
-		{
-			collectedCoins += 1;
-		}
-	}
-
-	sprintf_s(buffer, "Você coletou %d/%d moedas.", collectedCoins, COIN_TOTAL);
+	sprintf_s(buffer, "Você coletou %d/%d moedas.", coinManager->getCollectedCoins(), coinManager->getTotalCoins());
 	cout << buffer;
 
 	MessageBox(0, buffer, "Fim de Jogo!", MB_OK);
 
 	finish();
-}
-
-void SceneManager::dropCoin()
-{
-	if (fallenCoins > 0 && fallenCoins % 5 == 0 && coinFallingSpeedFactor <= 2.4)
-	{
-		coinFallingSpeedFactor = coinFallingSpeedFactor + 0.2;
-	}
-
-	Coin* coin = coins[COIN_TOTAL - 1 - fallenCoins];
-	coin->startFalling(coinFallingSpeedFactor);
-	fallenCoins += 1;
-
 }
 
 void SceneManager::render()
@@ -204,11 +165,7 @@ void SceneManager::render()
 		objects[i]->draw();
 	}
 
-	for (int i = 0; i < coins.size(); i++)
-	{
-		coins[i]->update();
-		coins[i]->draw();
-	}
+	coinManager->render();
 }
 
 void SceneManager::moveRight()
@@ -277,12 +234,8 @@ void SceneManager::setupScene()
 
 	scottPilgrim = factory->scottPilgrim(shader, LEFT_BOUNDARY, FLOOR_LEVEL, SCOTT_MOVE_RIGHT);
 	objects.push_back(scottPilgrim);
-
-	for (int i = 0; i <= COIN_TOTAL; i++)
-	{
-		Coin* coin = factory->coin(shader);
-		coins.push_back(coin);
-	}
+	
+	coinManager->generateCoins(factory, shader);
 
 	ortho2D[0] = 0.0f;
 	ortho2D[1] = 800.0f;

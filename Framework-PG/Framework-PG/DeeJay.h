@@ -17,8 +17,7 @@ public:
 	void stopSoundtrack();
 
 private:
-
+	//Threading para iniciar e parar reprodução da trilha
 	std::thread* playThread = nullptr;
 	std::thread* stopThread = nullptr;
-
 };

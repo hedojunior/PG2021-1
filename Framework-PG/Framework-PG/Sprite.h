@@ -1,8 +1,5 @@
 #pragma once
 
-//Esta classe vai ir sofrendo alterações durante o curso
-//Aqui ela está preparada apenas para sprites texturizados
-
 #include "Shader.h"
 
 // GLM
@@ -38,14 +35,18 @@ public:
 
 	//métodos para animação
 	void updateVAO();
+
 	void beginAnimating() { this->isAnimating = true; }
 	void stopAnimating() { this->isAnimating = false; }
 
+	//Indicam se a sprite pode se movimentar baseado nos limites de tela
 	bool canMoveRight(float boundary) { return pos.x < boundary; }
 	bool canMoveLeft(float boundary) { return pos.x > boundary; }
 
+	//Indica se esse Sprite colide com outro Sprite
 	bool collidesWith(Sprite* otherSprite);
 
+	//Atualiza a posição em X adicionando um fator passado por parâmetro
 	void updateXAxisPosition(float factor) { this->pos = glm::vec3(this->pos.x + factor, this->pos.y, this->pos.z); }
 
 protected:

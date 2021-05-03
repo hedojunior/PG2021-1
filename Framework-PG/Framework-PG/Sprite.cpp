@@ -16,9 +16,9 @@ void Sprite::initialize()
 
 	updateVAO();
 
-	transform = glm::mat4(1); //matriz identidade
-	texID = -1; //ainda não temos
-	shader = NULL; //ainda não temos
+	transform = glm::mat4(1);
+	texID = -1;
+	shader = NULL;
 	pos = glm::vec3(0.0f, 0.0f, 0.0f);
 	scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	angle = 0.0f;
@@ -48,6 +48,7 @@ void Sprite::setScale(glm::vec3 scaleFactors, bool reset)
 	scale = scaleFactors;
 }
 
+//Método para setar valores necessários para animação com spritesheet
 void Sprite::setSpritesheet(int numAnim, int numFrames, int initialAnim)
 {
 	this->nAnims = numAnim;
@@ -86,20 +87,24 @@ void Sprite::update()
 	GLint transformLoc = glGetUniformLocation(shader->ID, "model");
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
+	//Calculando offset em X para definir o frame exibido
 	GLint offsetXLoc = glGetUniformLocation(shader->ID, "offsetX");
 	float offsetX = (usesSpritesheet && isAnimating) ? iFrame * dX : 0;
 	glUniform1f(offsetXLoc, offsetX);
 
+	//Calculando offset em Y para definir a animação utilizada
 	GLint offsetYLoc = glGetUniformLocation(shader->ID, "offsetY");
 	float offsetY = usesSpritesheet ? iAnim * dY : 0;
 	glUniform1f(offsetYLoc, offsetY);
 
-	if (usesSpritesheet && isAnimating) 
+	//Atualiza os frames somente se o objeto estiver ativo
+	if (usesSpritesheet && isAnimating)
 	{
 		iFrame = (iFrame + 1) % nFrames;
 	}
 }
 
+//Atualiza os buffers de acordo com os valores em dx e dy
 void Sprite::updateVAO()
 {
 	dX = 1.0 / nFrames;

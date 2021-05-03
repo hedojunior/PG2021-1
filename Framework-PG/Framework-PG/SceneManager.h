@@ -3,9 +3,9 @@
 #include "Shader.h"
 #include "Sprite.h" 
 #include "Timer.h"
-#include "Coin.h"
 #include "SpriteFactory.h"
 #include "DeeJay.h"
+#include "CoinManager.h"
 
 // GLM
 #include <glm/glm.hpp>
@@ -35,6 +35,7 @@ public:
 	void update();
 	void render();
 
+	//Método para cálculo de FPS
 	void calcWaitingTime(int fps, int elapsedTime)
 	{
 		waitingTime = 1000 / fps - elapsedTime;
@@ -43,22 +44,21 @@ public:
 	//Métodos de animação
 	void moveRight();
 	void moveLeft();
-	void dropCoin();
 
 	//Métodos para configuração e carregamento dos elementos da cena
 	void initializeGraphics();
 	void addShader(string vFilename, string fFilename);
-	void setupScene(); //antigo setupGeometry
+	void setupScene();
 	void setupCamera2D();
 
+	// Método de feedback
 	void displayMessageBox();
 
 private:
-	
-	//Janela GLFW (por enquanto, assumimos apenas 1 instância)
+	//Janela GLFW
 	GLFWwindow *window;
 
-	//Programa de shader (por enquanto, assumimos apenas 1 instância)
+	//Programa de shader
 	Shader *shader;
 
 	//Controle de FPS
@@ -66,29 +66,23 @@ private:
 	double waitingTime;
 
 	//Factory para Sprites
-	SpriteFactory* factory;
+	SpriteFactory *factory;
 
 	//Timer para controlar spawn de moedas
 	Timer *gameTimer;
 
 	//Musica
 	DeeJay *dj;
-	
-	//Variáveis de controle para moedas
-	double coinSpawnInterval;
-	double lastSpawnInSeconds;
-	double coinFallingSpeedFactor;
-	int collectedCoins;
-	int fallenCoins;
 
+	//Controlador de moedas
+	CoinManager *coinManager;
+
+	//Ortho e projeção
 	glm::vec4 ortho2D;
 	glm::mat4 projection;
 
 	//Sprites
 	Sprite* scottPilgrim;
-
 	vector <Sprite*> objects;
-	vector <Coin*> coins;
-
 };
 

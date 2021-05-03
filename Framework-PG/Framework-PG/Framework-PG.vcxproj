@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Coin.cpp" />
+    <ClCompile Include="CoinManager.cpp" />
     <ClCompile Include="DeeJay.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="glad.c" />
@@ -153,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Coin.h" />
+    <ClInclude Include="CoinManager.h" />
     <ClInclude Include="DeeJay.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SceneManager.h" />
