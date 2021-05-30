@@ -13,5 +13,5 @@ void main()
 {
     color = texture(ourTexture1, TexCoord);// * vec4(ourColor, 1.0);
 
-    color = vec4(color.r + rgbModifier.r, color.g + rgbModifier.g, color.b + rgbModifier.b, 1.0);
+    //color = vec4(color.r + rgbModifier.r, color.g + rgbModifier.g, color.b + rgbModifier.b, 1.0);
 }
