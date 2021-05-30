@@ -233,11 +233,13 @@ unsigned int SceneManager::loadTexture(string filename)
 
 		int size = width * height * nrChannels;
 
+		int fator = 100;
+
 		for (int i = 0; i < size; i += nrChannels)
 		{
-			data[i] = data[i] ^ 255;
-			data[i + 1] = data[i + 1] ^ 255;
-			data[i + 2] = data[i + 2] ^ 255;
+			data[i] = data[i] > fator ? 255 : 0;
+			data[i + 1] = data[i + 1] > fator ? 255 : 0;
+			data[i + 2] = data[i + 2] > fator ? 255 : 0;
 		}
 
 		if (nrChannels == 3) //jpg, bmp
