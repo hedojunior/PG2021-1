@@ -235,8 +235,10 @@ unsigned int SceneManager::loadTexture(string filename)
 
 		for (int i = 0; i < size; i += nrChannels)
 		{
-			data[i + 1] = 0;
-			data[i + 2] = 0;
+			int media = (data[i] + data[i + 1] + data[i + 2]) / 3;
+			data[i] = media;
+			data[i + 1] = media;
+			data[i + 2] = media;
 			//data[i + 3] caso tenha alpha (png)
 		}
 
