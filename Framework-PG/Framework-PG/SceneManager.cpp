@@ -230,6 +230,16 @@ unsigned int SceneManager::loadTexture(string filename)
 	
 	if (data)
 	{
+
+		int size = width * height * nrChannels;
+
+		for (int i = 0; i < size; i += nrChannels)
+		{
+			data[i + 1] = 0;
+			data[i + 2] = 0;
+			//data[i + 3] caso tenha alpha (png)
+		}
+
 		if (nrChannels == 3) //jpg, bmp
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
