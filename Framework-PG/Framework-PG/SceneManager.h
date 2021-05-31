@@ -35,7 +35,6 @@ public:
 
 	//Métodos para configuração e carregamento dos elementos da cena
 	void initializeGraphics();
-	void addShader(string vFilename, string fFilename);
 	void setupScene(); //antigo setupGeometry
 	void setupCamera2D();
 	unsigned int loadTexture(string filename); 
@@ -46,7 +45,9 @@ private:
 	GLFWwindow *window;
 
 	//Programa de shader (por enquanto, assumimos apenas 1 instância)
-	Shader *shader;
+	Shader *inversionShader;
+	Shader *coloringShader;
+	Shader *binarizationShader;
 
 	//Câmera 2D - Matriz de projeção (ortográfica) com os limites em x,y
 	glm::vec4 ortho2D; //xmin, xmax, ymin, ymax

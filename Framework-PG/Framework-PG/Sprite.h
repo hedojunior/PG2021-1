@@ -20,10 +20,11 @@ public:
 
 	//Para setar os atributos 
 	void setTexture(int texID);
-	void setShader(Shader* shader) { this->shader = shader; shader->Use(); }
+	void setShader(Shader* shader) { this->shader = shader; }
 	void setPosition(glm::vec3 pos) { this->pos = pos; } //dica: fazer setX e setY individualmente
 	void setDimension(glm::vec3 scale) { this->scale = scale; }
 	void setAngle(float angle) { this->angle = angle; } //para 3D precisa angulo por eixo ou quaternion
+	void useShader() { shader->Use(); }
 	
 
 	//Para controle direto da matriz de transformações

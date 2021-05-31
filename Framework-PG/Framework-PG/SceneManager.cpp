@@ -47,7 +47,9 @@ void SceneManager::initializeGraphics()
 	}
 
 	// Build and compile our shader program
-	addShader("../shaders/transformations.vs", "../shaders/transformations.frag");
+	binarizationShader = new Shader("../shaders/transformations.vs", "../shaders/binarized.frag");
+	inversionShader = new Shader("../shaders/transformations.vs", "../shaders/inverted.frag");
+	coloringShader = new Shader("../shaders/transformations.vs", "../shaders/colored.frag");
 
 	//setup the scene -- LEMBRANDO QUE A DESCRIÇÃO DE UMA CENA PODE VIR DE ARQUIVO(S) DE 
 	// CONFIGURAÇÃO
@@ -56,12 +58,6 @@ void SceneManager::initializeGraphics()
 	resized = true; //para entrar no setup da câmera na 1a vez
 
 }
-
-void SceneManager::addShader(string vFilename, string fFilename)
-{
-	shader = new Shader (vFilename.c_str(), fFilename.c_str());
-}
-
 
 void SceneManager::key_callback(GLFWwindow * window, int key, int scancode, int action, int mode)
 {
@@ -91,12 +87,6 @@ void SceneManager::update()
 {
 	if (keys[GLFW_KEY_ESCAPE])
 		glfwSetWindowShouldClose(window, GL_TRUE);
-
-
-	//AQUI aplicaremos as transformações nos sprites
-	
-	//altera o angulo do segundo objeto
-	objects[1]->setAngle((float)glfwGetTime());
 }
 
 void SceneManager::render()
@@ -156,31 +146,29 @@ void SceneManager::setupScene()
 	
 	//Mínimo: posicao e escala e ponteiro para o shader
 	Sprite* obj = new Sprite;
-	obj->setPosition(glm::vec3(400.0f, 300.0f, 0.0));
-	obj->setDimension(glm::vec3(302.0f, 402.0f, 1.0f)); //note que depois podemos reescalar conforme tamanho da sprite
-	obj->setShader(shader);
+	obj->setPosition(glm::vec3(180.0f, 300.0f, 0.0));
+	obj->setDimension(glm::vec3(200.0f, 300.0f, 1.0f)); //note que depois podemos reescalar conforme tamanho da sprite
+	obj->setShader(inversionShader);
 	objects.push_back(obj); //adiciona o primeiro obj
 
-	//Adicionando mais um
-	obj = new Sprite;
-	obj->setPosition(glm::vec3(700.0f, 300.0f, 0.0));
-	obj->setDimension(glm::vec3(100.0f, 200.0f, 1.0f));
-	obj->setShader(shader);
-	objects.push_back(obj); //adiciona o segundo obj
+	Sprite *obj2 = new Sprite;
+	obj2->setPosition(glm::vec3(400.0f, 300.0f, 0.0));
+	obj2->setDimension(glm::vec3(200.0f, 300.0f, 1.0f)); //note que depois podemos reescalar conforme tamanho da sprite
+	obj2->setShader(binarizationShader);
+	objects.push_back(obj2);
 
-	//Adicionando mais um
-	obj = new Sprite;
-	obj->setPosition(glm::vec3(0.0f, 0.0f, 0.0));
-	obj->setDimension(glm::vec3(100.0f, 100.0f, 1.0f));
-	obj->setShader(shader);
-	objects.push_back(obj); //adiciona o terceiro obj
+	Sprite *obj3 = new Sprite;
+	obj3->setPosition(glm::vec3(620.0f, 300.0f, 0.0));
+	obj3->setDimension(glm::vec3(200.0f, 300.0f, 1.0f)); //note que depois podemos reescalar conforme tamanho da sprite
+	obj3->setShader(coloringShader);
+	objects.push_back(obj3);
+
+	inversionShader->Use();
 
 	//Carregamento das texturas (pode ser feito intercalado na criação)
 	//Futuramente, utilizar classe de materiais e armazenar dimensoes, etc
 	unsigned int texID = loadTexture("../textures/mario.png");
 	objects[0]->setTexture(texID);
-
-	texID = loadTexture("../textures/wall.jpg");
 	objects[1]->setTexture(texID);
 	objects[2]->setTexture(texID);
 
@@ -204,7 +192,17 @@ void SceneManager::setupCamera2D() //TO DO: parametrizar aqui
 
 
 	//Obtendo o identificador da matriz de projeção para enviar para o shader
-	GLint projLoc = glGetUniformLocation(shader->ID, "projection");
+	GLint projLoc = glGetUniformLocation(inversionShader->ID, "projection");
+	//Enviando a matriz de projeção para o shader
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+	//Obtendo o identificador da matriz de projeção para enviar para o shader
+	projLoc = glGetUniformLocation(inversionShader->ID, "projection");
+	//Enviando a matriz de projeção para o shader
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+	//Obtendo o identificador da matriz de projeção para enviar para o shader
+	projLoc = glGetUniformLocation(inversionShader->ID, "projection");
 	//Enviando a matriz de projeção para o shader
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 }
@@ -230,17 +228,18 @@ unsigned int SceneManager::loadTexture(string filename)
 	
 	if (data)
 	{
-
+		/*
 		int size = width * height * nrChannels;
 
 		int fator = 50;
-
+		
 		for (int i = 0; i < size; i += nrChannels)
 		{
 			data[i] = (data[i] > fator ? 255 : 0) ^ 255;
 			data[i + 1] = (data[i + 1] > fator ? 255 : 0) ^ 255;
 			data[i + 2] = (data[i + 2] > fator ? 255 : 0) ^ 255;
 		}
+		*/
 
 		if (nrChannels == 3) //jpg, bmp
 		{

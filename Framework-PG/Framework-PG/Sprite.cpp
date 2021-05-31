@@ -78,10 +78,14 @@ void Sprite::setScale(glm::vec3 scaleFactors, bool reset)
 
 void Sprite::draw()
 {
+	shader->Use();
+
 	glBindTexture(GL_TEXTURE_2D, texID);
 	glUniform1i(glGetUniformLocation(shader->ID, "ourTexture1"), 0);
 	
 	glUniform3f(glGetUniformLocation(shader->ID, "rgbModifier"), 1.0, 0.0, 0.0);
+
+	glUniform1f(glGetUniformLocation(shader->ID, "binarizationFactor"), 100.0);
 
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
