@@ -12,7 +12,7 @@ void main()
 {
     color = texture(ourTexture1, TexCoord);
 
-    color = vec4(color.r > binarizationFactor ? 255.0 : 0.0, 
-                 color.g > binarizationFactor ? 255.0 : 0.0, 
-                 color.b > binarizationFactor ? 255.0 : 0.0, 1.0);
+    color = vec4(color.r > binarizationFactor ? 1.0 : 0.0, 
+                 color.g > binarizationFactor ? 1.0 : 0.0, 
+                 color.b > binarizationFactor ? 1.0 : 0.0, 1.0);
 }

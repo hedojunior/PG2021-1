@@ -12,6 +12,8 @@
 // GLFW
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+
 //STB
 #include "stb_image.h"
 
@@ -19,9 +21,18 @@ class Shader
 {
 public:
 	GLuint ID;
+	const char* uniformName;
+	glm::vec3 uniformVectorValue;
+	float uniformSingleValue;
+	bool usesVectorValueUniform;
+
 	// Constructor generates the shader on the fly
 	Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
 	{
+		uniformName = "";
+		uniformSingleValue = NULL;
+		usesVectorValueUniform = false;
+
 		// 1. Retrieve the vertex/fragment source code from filePath
 		std::string vertexCode;
 		std::string fragmentCode;
@@ -98,8 +109,35 @@ public:
 	// Uses the current shader
 	void Use()
 	{
+		glUseProgram(0);
 		glUseProgram(this->ID);
 	}
+
+	void attachUniforms()
+	{
+		if (uniformName && usesVectorValueUniform)
+		{
+			glUniform3f(glGetUniformLocation(ID, uniformName), uniformVectorValue.x, uniformVectorValue.y, uniformVectorValue.z);
+		}
+		else if (uniformName && !usesVectorValueUniform && uniformSingleValue)
+		{
+			glUniform1f(glGetUniformLocation(ID, uniformName), uniformSingleValue);
+		}
+	}
+
+	void setUniform(const char* name, glm::vec3 values)
+	{
+		uniformName = name;
+		uniformVectorValue = values;
+		usesVectorValueUniform = true;
+	}
+
+	void setUniform(const char* name, float value)
+	{
+		uniformName = name;
+		uniformSingleValue = value;
+	}
+
 };
 
 #endif

@@ -78,15 +78,12 @@ void Sprite::setScale(glm::vec3 scaleFactors, bool reset)
 
 void Sprite::draw()
 {
-	shader->Use();
-
 	glBindTexture(GL_TEXTURE_2D, texID);
-	glUniform1i(glGetUniformLocation(shader->ID, "ourTexture1"), 0);
 	
-	glUniform3f(glGetUniformLocation(shader->ID, "rgbModifier"), 1.0, 0.0, 0.0);
+	glUniform1i(glGetUniformLocation(shader->ID, "ourTexture1"), 0);
 
-	glUniform1f(glGetUniformLocation(shader->ID, "binarizationFactor"), 100.0);
-
+	shader->attachUniforms();
+	
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
@@ -96,6 +93,7 @@ void Sprite::update()
 {
 	//Por enquanto o update é basicamente pedir para atualizar no shader 
 	//a matriz de transformação
+	shader->Use();
 
 	setTranslation(pos);
 	setRotation(angle, glm::vec3(0.0f, 0.0f, 1.0f), false);

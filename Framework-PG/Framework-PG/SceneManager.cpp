@@ -51,6 +51,9 @@ void SceneManager::initializeGraphics()
 	inversionShader = new Shader("../shaders/transformations.vs", "../shaders/inverted.frag");
 	coloringShader = new Shader("../shaders/transformations.vs", "../shaders/colored.frag");
 
+	binarizationShader->setUniform("binarizationFactor", 0.5);
+	coloringShader->setUniform("rgbModifier", glm::vec3(1.0, 0.0, 0.0));
+
 	//setup the scene -- LEMBRANDO QUE A DESCRIÇÃO DE UMA CENA PODE VIR DE ARQUIVO(S) DE 
 	// CONFIGURAÇÃO
 	setupScene();
@@ -163,7 +166,7 @@ void SceneManager::setupScene()
 	obj3->setShader(coloringShader);
 	objects.push_back(obj3);
 
-	inversionShader->Use();
+	//inversionShader->Use();
 
 	//Carregamento das texturas (pode ser feito intercalado na criação)
 	//Futuramente, utilizar classe de materiais e armazenar dimensoes, etc
@@ -191,18 +194,21 @@ void SceneManager::setupCamera2D() //TO DO: parametrizar aqui
 	projection = glm::ortho(ortho2D[0], ortho2D[1], ortho2D[2], ortho2D[3], zNear, zFar);
 
 
+	inversionShader->Use();
 	//Obtendo o identificador da matriz de projeção para enviar para o shader
 	GLint projLoc = glGetUniformLocation(inversionShader->ID, "projection");
 	//Enviando a matriz de projeção para o shader
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
+	coloringShader->Use();
 	//Obtendo o identificador da matriz de projeção para enviar para o shader
-	projLoc = glGetUniformLocation(inversionShader->ID, "projection");
+	projLoc = glGetUniformLocation(coloringShader->ID, "projection");
 	//Enviando a matriz de projeção para o shader
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
+	binarizationShader->Use();
 	//Obtendo o identificador da matriz de projeção para enviar para o shader
-	projLoc = glGetUniformLocation(inversionShader->ID, "projection");
+	projLoc = glGetUniformLocation(binarizationShader->ID, "projection");
 	//Enviando a matriz de projeção para o shader
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 }
