@@ -55,7 +55,6 @@ private:
 	glm::mat4 projection;
 
 	Sprite* mainImage;
-	string imagePath;
 	
 	vector <Sprite*> filters;
 	vector <Sprite*> stickers;

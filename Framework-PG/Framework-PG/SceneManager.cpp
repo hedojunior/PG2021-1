@@ -212,7 +212,7 @@ void SceneManager::handleClick()
 	{
 		if (mainImage->clickInBounds(clickCoordinates))
 		{
-			glm::vec3 position = glm::vec3(clickCoordinates, 1.0);
+			glm::vec3 position = glm::vec3(clickCoordinates.x, 700 - clickCoordinates.y, 1.0);
 			Sprite* newSticker = spriteFactory->sticker(selectedStickerTextureID, textureShader, position);
 			placedStickers.push_back(newSticker);
 		}

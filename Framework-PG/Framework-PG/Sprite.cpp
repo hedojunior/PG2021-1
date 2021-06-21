@@ -96,11 +96,13 @@ void Sprite::update()
 bool Sprite::clickInBounds(glm::vec2 clickCoordinates)
 {
 	float convertedY = 700 - clickCoordinates.y;
+	float halfWidth = scale.x / 2;
+	float halfHeight = scale.y / 2;
 
-	float minX = pos.x;
-	float maxX = pos.x + scale.x;
-	float minY = pos.y;
-	float maxY = pos.y + scale.y;
+	float minX = pos.x - halfWidth;
+	float maxX = pos.x + halfWidth;
+	float minY = pos.y - halfHeight;
+	float maxY = pos.y + halfHeight;
 
 	bool collidesX = clickCoordinates.x > minX && clickCoordinates.x < maxX;
 	bool collidesY = convertedY > minY && convertedY < maxY;
