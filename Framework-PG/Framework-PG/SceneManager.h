@@ -25,16 +25,16 @@ public:
 	static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
-	//Métodos pricipais
-	void initialize(GLuint width, GLuint height, string imagePath);
+	//Mï¿½todos pricipais
+	void initialize(GLuint width, GLuint height, char path[255]);
 	void run();
 	void finish();
 
-	//Métodos chamados no run (ciclo)
+	//Mï¿½todos chamados no run (ciclo)
 	void update();
 	void render();
 
-	//Métodos para configuração e carregamento dos elementos da cena
+	//Mï¿½todos para configuraï¿½ï¿½o e carregamento dos elementos da cena
 	void initializeGraphics();
 	void setupShaders();
 	void setupStickers();
@@ -45,7 +45,7 @@ public:
 	int loadTexture(string filename);
 
 	void handleClick();
-
+	char imagePath[255];
 private:
 	
 	GLFWwindow *window;
@@ -61,8 +61,7 @@ private:
 	vector <Sprite*> stickers;
 	vector <Sprite*> placedStickers;
 	
-	Sprite* selectedFilter;
-	Sprite* selectedSticker;
+	int selectedStickerTextureID;
 
 	Shader* textureShader;
 	vector <Shader*> filterShaders;

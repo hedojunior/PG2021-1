@@ -1,23 +1,30 @@
-/* Hello Transforms - código inicial fornecido em https://learnopengl.com/#!Getting-started/Hello-Triangle 
+/* Hello Transforms - cï¿½digo inicial fornecido em https://learnopengl.com/#!Getting-started/Hello-Triangle 
  *
  * Adaptado por Rossana Baptista Queiroz
- * para a disciplina de Computação Gráfica - Jogos Digitais - Unisinos
- * Versão inicial: 7/4/2017
- * Última atualização em 14/03/2018
+ * para a disciplina de Computaï¿½ï¿½o Grï¿½fica - Jogos Digitais - Unisinos
+ * Versï¿½o inicial: 7/4/2017
+ * ï¿½ltima atualizaï¿½ï¿½o em 14/03/2018
  *
  */
 
 using namespace std;
 
 #include "SceneManager.h"
+#include <string.h>
 
 
 // The MAIN function, from here we start the application and run the game loop
 int main(int argc, char** argv)
 {
-	SceneManager *scene = new SceneManager;
-	scene->initialize(1200, 700, argv[1]);
+	char imagePath[255];
 
+	printf("Please, provide the image path:\n");
+
+	scanf_s("%[^\n]254s%*", imagePath, 254);
+
+	SceneManager *scene = new SceneManager;
+	scene->initialize(1200, 700, imagePath);
+	
 	scene->run();
 
 	scene->finish();

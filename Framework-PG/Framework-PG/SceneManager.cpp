@@ -2,10 +2,10 @@
 
 static bool keys[1024];
 static bool resized;
-static double xPos, yPos;
+static GLuint width, height;
+
 static glm::vec2 clickCoordinates;
 static bool clicked;
-static GLuint width, height;
 
 static string STICKER_BE_MINE = "../textures/be-mine.png";
 static string STICKER_COFFEE_CUP = "../textures/coffee-cup.png";
@@ -24,11 +24,16 @@ SceneManager::~SceneManager()
 {
 }
 
-void SceneManager::initialize(GLuint w, GLuint h, string imagePath)
+void SceneManager::initialize(GLuint w, GLuint h, char path[255])
 {
 	width = w;
 	height = h;
-	this->imagePath = imagePath;
+
+	for (int i = 0; i < 255; i++)
+	{
+		imagePath[i] = path[i];
+	}
+
 	spriteFactory = new SpriteFactory();
 	
 	initializeGraphics();
@@ -45,8 +50,6 @@ void SceneManager::initializeGraphics()
 	glfwSetKeyCallback(window, key_callback);
 
 	glfwSetWindowSizeCallback(window, resize);
-
-	glfwSetCursorPosCallback(window, cursor_position_callback);
 
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	
@@ -103,16 +106,13 @@ void SceneManager::mouse_button_callback(GLFWwindow* window, int button, int act
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-		clickCoordinates = glm::vec2(xPos, yPos);
+		double posX, posY;
+		glfwGetCursorPos(window, &posX, &posY);
+
+		clickCoordinates = glm::vec2(posX, posY);
 		clicked = true;
 	}
 
-}
-
-void SceneManager::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
-{
-	xPos = xpos;
-	yPos = ypos;
 }
 
 void SceneManager::key_callback(GLFWwindow * window, int key, int scancode, int action, int mode)
@@ -189,42 +189,35 @@ void SceneManager::render()
 
 void SceneManager::run()
 {
-	//GAME LOOP
 	while (!glfwWindowShouldClose(window))
 	{
-		
-		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
 
-		//Update method(s)
 		update();
 
-		//Render scene
 		render();
 		
-		// Swap the screen buffers
 		glfwSwapBuffers(window);
 	}
 }
 
 void SceneManager::finish()
 {
-	// Terminate GLFW, clearing any resources allocated by GLFW.
 	glfwTerminate();
 }
 
 void SceneManager::handleClick()
 {
-	if (selectedSticker)
+	if (selectedStickerTextureID > 0)
 	{
 		if (mainImage->clickInBounds(clickCoordinates))
 		{
 			glm::vec3 position = glm::vec3(clickCoordinates, 1.0);
-			Sprite* newSticker = spriteFactory->sticker(selectedSticker->texID, textureShader, position);
+			Sprite* newSticker = spriteFactory->sticker(selectedStickerTextureID, textureShader, position);
 			placedStickers.push_back(newSticker);
 		}
 
-		selectedSticker = NULL;
+		selectedStickerTextureID = 0;
 	}
 	else
 	{
@@ -232,7 +225,7 @@ void SceneManager::handleClick()
 		{
 			if (stickers[i]->clickInBounds(clickCoordinates))
 			{
-				selectedSticker = stickers[i];
+				selectedStickerTextureID = stickers[i]->texID;
 				return;
 			}
 		}
@@ -294,14 +287,14 @@ void SceneManager::setupFilterPreviews()
 		sprite->setDimension(glm::vec3(width, height, 1.0f));
 		sprite->setPosition(glm::vec3(firstColumnX, positionY, 1.0f));
 		sprite->setShader(filterShaders[i]);
-		sprite->setTexture(loadTexture("../textures/lena.png"));
+		sprite->setTexture(loadTexture(imagePath));
 		filters.push_back(sprite);
 
 		sprite = new Sprite;
 		sprite->setDimension(glm::vec3(width, height, 1.0f));
 		sprite->setPosition(glm::vec3(secondColumnX, positionY, 1.0f));
 		sprite->setShader(filterShaders[i + 1]);
-		sprite->setTexture(loadTexture("../textures/lena.png"));
+		sprite->setTexture(loadTexture(imagePath));
 		filters.push_back(sprite);
 
 		positionY += height + 10;
@@ -323,21 +316,18 @@ void SceneManager::setupScene()
 	sprite->setTexture(loadTexture(imagePath));
 	mainImage = sprite;
 
-	//Definindo a janela do mundo (ortho2D)
 	ortho2D[0] = 0.0f; //xMin
 	ortho2D[1] = 1200.0f; //xMax
 	ortho2D[2] = 0.0f; //yMin
 	ortho2D[3] = 700.0f; //yMax
 
-	//Habilita transparência
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 }
 
-void SceneManager::setupCamera2D() //TO DO: parametrizar aqui
+void SceneManager::setupCamera2D()
 {
-	float zNear = -1.0, zFar = 1.0; //estão fixos porque não precisamos mudar
+	float zNear = -1.0, zFar = 1.0;
 
 	projection = glm::ortho(ortho2D[0], ortho2D[1], ortho2D[2], ortho2D[3], zNear, zFar);
 
@@ -358,28 +348,25 @@ int SceneManager::loadTexture(string filename)
 {
 	unsigned int texture;
 
-	// load and create a texture 
 	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
-										   // set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	// load image, create texture and generate mipmaps
 	int width, height, nrChannels;
 
 	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
 
 	if (data)
 	{
-		if (nrChannels == 3) //jpg, bmp
+		if (nrChannels == 3)
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		}
-		else //png
+		else
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		}
@@ -391,7 +378,7 @@ int SceneManager::loadTexture(string filename)
 	}
 	stbi_image_free(data);
 
-	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glActiveTexture(GL_TEXTURE0);
 

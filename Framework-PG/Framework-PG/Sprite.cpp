@@ -7,20 +7,18 @@ Sprite::Sprite()
 
 void Sprite::initialize()
 {
-	//Por enquanto trabalharemos apenas com sprites retangulares
-	//com cor e textura -- e por enquanto sem spritesheet
-	
 	float vertices[] = {
-		// positions          // colors           // texture coords
 		0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0, // top right
 		0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
 		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
 		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0  // top left 
 	};
+	
 	unsigned int indices[] = {
-		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
+		0, 1, 3,
+		1, 2, 3
 	};
+	
 	unsigned int VBO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -37,30 +35,25 @@ void Sprite::initialize()
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
 	// color attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
 	// texture coord attribute
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
-	transform = glm::mat4(1); //matriz identidade
-	texID = -1; //ainda não temos
-	shader = NULL; //ainda não temos
+	transform = glm::mat4(1);
+	texID = -1;
+	shader = NULL;
 	pos = glm::vec3(0.0f, 0.0f, 0.0f);
 	scale = glm::vec3(1.0f, 1.0f, 1.0f);
-	angle = 0.0f;
 }
 
 void Sprite::setTexture(int texID)
 {
 	this->texID = texID;
-}
-
-void Sprite::setRotation(float angle, glm::vec3 axis, bool reset)
-{
-	if (reset) transform = glm::mat4(1);
-	transform = glm::rotate(transform, angle, axis);
 }
 
 void Sprite::setTranslation(glm::vec3 displacements, bool reset)
@@ -91,20 +84,13 @@ void Sprite::draw()
 
 void Sprite::update()
 {
-	//Por enquanto o update é basicamente pedir para atualizar no shader 
-	//a matriz de transformação
 	shader->Use();
 
 	setTranslation(pos);
-	setRotation(angle, glm::vec3(0.0f, 0.0f, 1.0f), false);
 	setScale(scale, false);
 
 	GLint transformLoc = glGetUniformLocation(shader->ID, "model");
-	// Pass them to the shaders
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
-
-	//TO DO: quando tiver animação por spritesheet, passar os deslocamentos
-	//nas coords de textura
 }
 
 bool Sprite::clickInBounds(glm::vec2 clickCoordinates)
