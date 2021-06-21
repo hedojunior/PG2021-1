@@ -36,18 +36,16 @@ public:
 	void draw();
 	void update();
 
-	//TO DO: métodos para animação
-
+	bool clickInBounds(glm::vec2 clickCoordinates);
+	
+	unsigned int texID; //identificador da textura
+	Shader* shader; //ponteiro para o objeto de shader, para fazer a interface
 protected:
 	//Atributos gerais
 
 	GLuint VAO; //ID do buffer de geometria
 
 	glm::mat4 transform; //matriz de transformação
-
-	unsigned int texID; //identificador da textura
-
-	Shader* shader; //ponteiro para o objeto de shader, para fazer a interface
 
 	//Atributos de controle da posição, orientação e dimensões do sprite
 	glm::vec3 pos, scale;

@@ -106,3 +106,18 @@ void Sprite::update()
 	//TO DO: quando tiver animação por spritesheet, passar os deslocamentos
 	//nas coords de textura
 }
+
+bool Sprite::clickInBounds(glm::vec2 clickCoordinates)
+{
+	float convertedY = 700 - clickCoordinates.y;
+
+	float minX = pos.x;
+	float maxX = pos.x + scale.x;
+	float minY = pos.y;
+	float maxY = pos.y + scale.y;
+
+	bool collidesX = clickCoordinates.x > minX && clickCoordinates.x < maxX;
+	bool collidesY = convertedY > minY && convertedY < maxY;
+
+	return collidesX && collidesY;
+}

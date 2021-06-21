@@ -1,9 +1,20 @@
 #include "SceneManager.h"
 
-//static controllers for mouse and keyboard
 static bool keys[1024];
 static bool resized;
+static double xPos, yPos;
+static glm::vec2 clickCoordinates;
+static bool clicked;
 static GLuint width, height;
+
+static string STICKER_BE_MINE = "../textures/be-mine.png";
+static string STICKER_COFFEE_CUP = "../textures/coffee-cup.png";
+static string STICKER_DOUGHNUT = "../textures/doughnut.png";
+static string STICKER_FLASH = "../textures/flash.png";
+static string STICKER_HEART = "../textures/heart.png";
+static string STICKER_PARTY = "../textures/party.png";
+static string STICKER_PRIDE = "../textures/pride.png";
+static string STICKER_STAR = "../textures/star.png";
 
 SceneManager::SceneManager()
 {
@@ -13,53 +24,95 @@ SceneManager::~SceneManager()
 {
 }
 
-void SceneManager::initialize(GLuint w, GLuint h)
+void SceneManager::initialize(GLuint w, GLuint h, string imagePath)
 {
 	width = w;
 	height = h;
+	this->imagePath = imagePath;
+	spriteFactory = new SpriteFactory();
 	
-	// GLFW - GLEW - OPENGL general setup -- TODO: config file
 	initializeGraphics();
 
 }
 
 void SceneManager::initializeGraphics()
 {
-	// Init GLFW
 	glfwInit();
 
-	// Create a GLFWwindow object that we can use for GLFW's functions
-	window = glfwCreateWindow(width, height, "Hello Sprites", nullptr, nullptr);
+	window = glfwCreateWindow(width, height, "Fakestagram", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
-	// Set the required callback functions
 	glfwSetKeyCallback(window, key_callback);
 
-	//Setando a callback de redimensionamento da janela
 	glfwSetWindowSizeCallback(window, resize);
+
+	glfwSetCursorPosCallback(window, cursor_position_callback);
+
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	
-	// glad: load all OpenGL function pointers
-	// ---------------------------------------
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 
 	}
 
-	// Build and compile our shader program
-	binarizationShader = new Shader("../shaders/transformations.vs", "../shaders/binarized.frag");
-	inversionShader = new Shader("../shaders/transformations.vs", "../shaders/inverted.frag");
-	coloringShader = new Shader("../shaders/transformations.vs", "../shaders/colored.frag");
+	setupShaders();
 
-	binarizationShader->setUniform("binarizationFactor", 0.5);
-	coloringShader->setUniform("rgbModifier", glm::vec3(1.0, 0.0, 0.0));
-
-	//setup the scene -- LEMBRANDO QUE A DESCRIÇÃO DE UMA CENA PODE VIR DE ARQUIVO(S) DE 
-	// CONFIGURAÇÃO
 	setupScene();
 
-	resized = true; //para entrar no setup da câmera na 1a vez
+	resized = true;
 
+}
+
+void SceneManager::setupShaders()
+{
+	textureShader = new Shader("../shaders/transformations.vs", "../shaders/texture.frag");
+
+	Shader * shader = new Shader("../shaders/transformations.vs", "../shaders/binarized.frag");
+	shader->setUniform("binarizationFactor", 0.7);
+	filterShaders.push_back(shader);
+
+	shader = new Shader("../shaders/transformations.vs", "../shaders/inverted.frag");
+	filterShaders.push_back(shader);
+
+	shader = new Shader("../shaders/transformations.vs", "../shaders/grayscaled.frag");
+	filterShaders.push_back(shader);
+
+	shader = new Shader("../shaders/transformations.vs", "../shaders/colored.frag");
+	shader->setUniform("rgbModifier", glm::vec3(1.0, 0.0, 0.0));
+	filterShaders.push_back(shader);
+
+	shader = new Shader("../shaders/transformations.vs", "../shaders/colored.frag");
+	shader->setUniform("rgbModifier", glm::vec3(0.0, 0.5, 0.0));
+	filterShaders.push_back(shader);
+
+	shader = new Shader("../shaders/transformations.vs", "../shaders/colored.frag");
+	shader->setUniform("rgbModifier", glm::vec3(0.0, 0.0, 1.0));
+	filterShaders.push_back(shader);
+
+	shader = new Shader("../shaders/transformations.vs", "../shaders/colored.frag");
+	shader->setUniform("rgbModifier", glm::vec3(0.48, 0.25, 0.0));
+	filterShaders.push_back(shader);
+
+	shader = new Shader("../shaders/transformations.vs", "../shaders/colored.frag");
+	shader->setUniform("rgbModifier", glm::vec3(1.0, 0.031, 0.87));
+	filterShaders.push_back(shader);
+}
+
+void SceneManager::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		clickCoordinates = glm::vec2(xPos, yPos);
+		clicked = true;
+	}
+
+}
+
+void SceneManager::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	xPos = xpos;
+	yPos = ypos;
 }
 
 void SceneManager::key_callback(GLFWwindow * window, int key, int scancode, int action, int mode)
@@ -81,7 +134,6 @@ void SceneManager::resize(GLFWwindow * window, int w, int h)
 	height = h;
 	resized = true;
 
-	// Define the viewport dimensions
 	glViewport(0, 0, width, height);
 }
 
@@ -90,29 +142,48 @@ void SceneManager::update()
 {
 	if (keys[GLFW_KEY_ESCAPE])
 		glfwSetWindowShouldClose(window, GL_TRUE);
+
+	if (clicked)
+	{
+		clicked = false;
+		handleClick();
+	}
+
+
 }
 
 void SceneManager::render()
 {
-	// Clear the colorbuffer
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	glClearColor(0.8f, 0.57f, 0.8f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	if (resized) //se houve redimensionamento na janela, redefine a projection matrix
+	if (resized)
 	{
 		setupCamera2D();
 		resized = false;
 	}
 
-	//atualiza e desenha os Sprites
+	mainImage->update();
+	mainImage->draw();
 
-	for (int i = 0; i < objects.size(); i++)
+	for (int i = 0; i < stickers.size(); i++)
 	{
-		objects[i]->update();
-		objects[i]->draw();
+		stickers[i]->update();
+		stickers[i]->draw();
 	}
 	
+	for (int i = 0; i < filters.size(); i++)
+	{
+		filters[i]->update();
+		filters[i]->draw();
+	}
+
+	for (int i = 0; i < placedStickers.size(); i++)
+	{
+		placedStickers[i]->update();
+		placedStickers[i]->draw();
+	}
 
 }
 
@@ -142,44 +213,121 @@ void SceneManager::finish()
 	glfwTerminate();
 }
 
+void SceneManager::handleClick()
+{
+	if (selectedSticker)
+	{
+		if (mainImage->clickInBounds(clickCoordinates))
+		{
+			glm::vec3 position = glm::vec3(clickCoordinates, 1.0);
+			Sprite* newSticker = spriteFactory->sticker(selectedSticker->texID, textureShader, position);
+			placedStickers.push_back(newSticker);
+		}
+
+		selectedSticker = NULL;
+	}
+	else
+	{
+		for (int i = 0; i < stickers.size(); i++)
+		{
+			if (stickers[i]->clickInBounds(clickCoordinates))
+			{
+				selectedSticker = stickers[i];
+				return;
+			}
+		}
+
+		for (int i = 0; i < filters.size(); i++)
+		{
+			if (filters[i]->clickInBounds(clickCoordinates))
+			{
+				mainImage->setShader(filters[i]->shader);
+				return;
+			}
+		}
+	}
+}
+
+void SceneManager::setupStickers()
+{
+	float baseY = 150.0f;
+	float baseX = 50.0f;
+	float size = 70.0f;
+
+	Sprite* sprite = spriteFactory->sticker(STICKER_BE_MINE, textureShader, glm::vec3(baseX + size, baseY + size, 1.0f));
+	stickers.push_back(sprite);
+
+	sprite = spriteFactory->sticker(STICKER_COFFEE_CUP, textureShader, glm::vec3(baseX + size * 2, baseY + size, 1.0f));
+	stickers.push_back(sprite);
+
+	sprite = spriteFactory->sticker(STICKER_DOUGHNUT, textureShader, glm::vec3(baseX + size, baseY + size * 2, 1.0f));
+	stickers.push_back(sprite);
+
+	sprite = spriteFactory->sticker(STICKER_FLASH, textureShader, glm::vec3(baseX + size * 2, baseY + size * 2, 1.0f));
+	stickers.push_back(sprite);
+
+	sprite = spriteFactory->sticker(STICKER_HEART, textureShader, glm::vec3(baseX + size, baseY + size * 3, 1.0f));
+	stickers.push_back(sprite);
+
+	sprite = spriteFactory->sticker(STICKER_PARTY, textureShader, glm::vec3(baseX + size * 2, baseY + size * 3, 1.0f));
+	stickers.push_back(sprite);
+
+	sprite = spriteFactory->sticker(STICKER_PRIDE, textureShader, glm::vec3(baseX + size, baseY + size * 4, 1.0f));
+	stickers.push_back(sprite);
+
+	sprite = spriteFactory->sticker(STICKER_STAR, textureShader, glm::vec3(baseX + size * 2, baseY + size * 4, 1.0f));
+	stickers.push_back(sprite);
+}
+
+void SceneManager::setupFilterPreviews()
+{
+
+	float width = 100.0f;
+	float height = 100.0f;
+	float firstColumnX = 970.0f;
+	float secondColumnX = firstColumnX + width + 20;
+	float positionY = 180.0f;
+
+	for (int i = 0; i < filterShaders.size(); i = i + 2)
+	{
+		Sprite* sprite = new Sprite;
+		sprite->setDimension(glm::vec3(width, height, 1.0f));
+		sprite->setPosition(glm::vec3(firstColumnX, positionY, 1.0f));
+		sprite->setShader(filterShaders[i]);
+		sprite->setTexture(loadTexture("../textures/lena.png"));
+		filters.push_back(sprite);
+
+		sprite = new Sprite;
+		sprite->setDimension(glm::vec3(width, height, 1.0f));
+		sprite->setPosition(glm::vec3(secondColumnX, positionY, 1.0f));
+		sprite->setShader(filterShaders[i + 1]);
+		sprite->setTexture(loadTexture("../textures/lena.png"));
+		filters.push_back(sprite);
+
+		positionY += height + 10;
+	}
+	
+}
+
 
 void SceneManager::setupScene()
 {
-	//Criação dos Sprites iniciais -- pode-se fazer métodos de criação posteriormente
-	
-	//Mínimo: posicao e escala e ponteiro para o shader
-	Sprite* obj = new Sprite;
-	obj->setPosition(glm::vec3(180.0f, 300.0f, 0.0));
-	obj->setDimension(glm::vec3(200.0f, 300.0f, 1.0f)); //note que depois podemos reescalar conforme tamanho da sprite
-	obj->setShader(inversionShader);
-	objects.push_back(obj); //adiciona o primeiro obj
 
-	Sprite *obj2 = new Sprite;
-	obj2->setPosition(glm::vec3(400.0f, 300.0f, 0.0));
-	obj2->setDimension(glm::vec3(200.0f, 300.0f, 1.0f)); //note que depois podemos reescalar conforme tamanho da sprite
-	obj2->setShader(binarizationShader);
-	objects.push_back(obj2);
+	setupStickers();
+	setupFilterPreviews();
 
-	Sprite *obj3 = new Sprite;
-	obj3->setPosition(glm::vec3(620.0f, 300.0f, 0.0));
-	obj3->setDimension(glm::vec3(200.0f, 300.0f, 1.0f)); //note que depois podemos reescalar conforme tamanho da sprite
-	obj3->setShader(coloringShader);
-	objects.push_back(obj3);
-
-	//inversionShader->Use();
-
-	//Carregamento das texturas (pode ser feito intercalado na criação)
-	//Futuramente, utilizar classe de materiais e armazenar dimensoes, etc
-	unsigned int texID = loadTexture("../textures/mario.png");
-	objects[0]->setTexture(texID);
-	objects[1]->setTexture(texID);
-	objects[2]->setTexture(texID);
+	Sprite* sprite = new Sprite;
+	sprite->setDimension(glm::vec3(500.0f, 500.0f, 1.0f));
+	sprite->setPosition(glm::vec3(600.0f, 350.0f, 1.0f));
+	sprite->setShader(textureShader);
+	sprite->setTexture(loadTexture(imagePath));
+	mainImage = sprite;
 
 	//Definindo a janela do mundo (ortho2D)
 	ortho2D[0] = 0.0f; //xMin
-	ortho2D[1] = 800.0f; //xMax
+	ortho2D[1] = 1200.0f; //xMax
 	ortho2D[2] = 0.0f; //yMin
-	ortho2D[3] = 600.0f; //yMax
+	ortho2D[3] = 700.0f; //yMax
 
 	//Habilita transparência
 	glEnable(GL_BLEND);
@@ -193,27 +341,20 @@ void SceneManager::setupCamera2D() //TO DO: parametrizar aqui
 
 	projection = glm::ortho(ortho2D[0], ortho2D[1], ortho2D[2], ortho2D[3], zNear, zFar);
 
+	for (int i = 0; i < filterShaders.size(); i++)
+	{
+		filterShaders[i]->Use();
+		
+		GLint projLoc = glGetUniformLocation(filterShaders[i]->ID, "projection");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+	}
 
-	inversionShader->Use();
-	//Obtendo o identificador da matriz de projeção para enviar para o shader
-	GLint projLoc = glGetUniformLocation(inversionShader->ID, "projection");
-	//Enviando a matriz de projeção para o shader
-	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-	coloringShader->Use();
-	//Obtendo o identificador da matriz de projeção para enviar para o shader
-	projLoc = glGetUniformLocation(coloringShader->ID, "projection");
-	//Enviando a matriz de projeção para o shader
-	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-	binarizationShader->Use();
-	//Obtendo o identificador da matriz de projeção para enviar para o shader
-	projLoc = glGetUniformLocation(binarizationShader->ID, "projection");
-	//Enviando a matriz de projeção para o shader
+	textureShader->Use();
+	GLint projLoc = glGetUniformLocation(textureShader->ID, "projection");
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 }
 
-unsigned int SceneManager::loadTexture(string filename)
+int SceneManager::loadTexture(string filename)
 {
 	unsigned int texture;
 
@@ -229,24 +370,11 @@ unsigned int SceneManager::loadTexture(string filename)
 
 	// load image, create texture and generate mipmaps
 	int width, height, nrChannels;
-	
-	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
-	
+
+	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
+
 	if (data)
 	{
-		/*
-		int size = width * height * nrChannels;
-
-		int fator = 50;
-		
-		for (int i = 0; i < size; i += nrChannels)
-		{
-			data[i] = (data[i] > fator ? 255 : 0) ^ 255;
-			data[i + 1] = (data[i + 1] > fator ? 255 : 0) ^ 255;
-			data[i + 2] = (data[i + 2] > fator ? 255 : 0) ^ 255;
-		}
-		*/
-
 		if (nrChannels == 3) //jpg, bmp
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);

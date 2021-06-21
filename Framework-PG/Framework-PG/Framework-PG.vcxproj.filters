@@ -33,6 +33,9 @@
     <ClCompile Include="Sprite.cpp">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
+    <ClCompile Include="SpriteFactory.cpp">
+      <Filter>Arquivos de Origem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceneManager.h">
@@ -47,12 +50,30 @@
     <ClInclude Include="Sprite.h">
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
+    <ClInclude Include="SpriteFactory.h">
+      <Filter>Arquivos de Cabeçalho</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shaders\transformations.frag">
       <Filter>shaders</Filter>
     </None>
     <None Include="..\shaders\transformations.vs">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\binarized.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\colored.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\inverted.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\texture.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\grayscaled.frag">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
